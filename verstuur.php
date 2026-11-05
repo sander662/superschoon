@@ -91,6 +91,7 @@ $type  = ($in['type'] ?? '') === 'offerte' ? 'offerte' : 'contact';
 $naam  = regel($in['naam'] ?? '', 120);
 $email = filter_var(regel($in['email'] ?? '', 160), FILTER_VALIDATE_EMAIL) ?: '';
 $tel   = regel($in['tel'] ?? '', 40);
+$nieuwsbrief = !empty($in['nieuwsbrief']) ? 'ja' : 'nee';
 
 if (mb_strlen($naam) < 2 || $email === '') {
     antwoord(422, ['ok' => false, 'fout' => 'Naam of e-mailadres ontbreekt.']);
@@ -103,7 +104,7 @@ if ($type === 'contact') {
     if (mb_strlen($bericht) < 5) antwoord(422, ['ok' => false, 'fout' => 'Bericht ontbreekt.']);
 
     $body = "Nieuw bericht via superschoon.be ($tijd)\n\n"
-          . "Naam:     $naam\nE-mail:   $email\nTelefoon: " . ($tel ?: '-') . "\n\n"
+          . "Naam:     $naam\nE-mail:   $email\nTelefoon: " . ($tel ?: '-') . "\nNieuwsbrief: $nieuwsbrief\n\n"
           . "Bericht:\n$bericht\n";
     $ok = verstuur(ONTVANGER, "Nieuw bericht van $naam", $body, $email);
 
@@ -117,7 +118,7 @@ if ($type === 'contact') {
 /* ---- offerteaanvraag ---- */
 $adres = regel($in['adres'] ?? '', 250);
 $m2    = (float)($in['m2'] ?? 0);
-$types = array_slice(array_map(fn($x) => regel($x, 40), is_array($in['types'] ?? null) ? $in['types'] : []), 0, 6);
+$types = array_slice(array_map(fn($x) => regel($x, 80), is_array($in['types'] ?? null) ? $in['types'] : []), 0, 8);
 $opm   = tekst($in['opmerking'] ?? '', 2000);
 $rein  = prijsReiniging($m2);
 if ($rein === null || $adres === '' || !$types) {
@@ -142,7 +143,7 @@ foreach ($zones as $i => $z) {
 
 $body = "Nieuwe offerteaanvraag via superschoon.be ($tijd)\n\n"
       . "KLANT\n"
-      . "Naam:      $naam\nE-mail:    $email\nTelefoon:  $tel\nAdres:     $adres\n\n"
+      . "Naam:      $naam\nE-mail:    $email\nTelefoon:  $tel\nAdres:     $adres\nNieuwsbrief: $nieuwsbrief\n\n"
       . "VERHARDING\n"
       . "Type:      " . implode(', ', $types) . "\n"
       . "Oppervlakte: " . number_format($m2, 1, ',', '.') . " m²\n"

@@ -22,7 +22,7 @@
     try{
       const r=await fetch('verstuur.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
         type:'contact',naam:$('c-naam').value.trim(),email:$('c-email').value.trim(),tel:$('c-tel').value.trim(),
-        bericht:$('c-bericht').value.trim(),website:$('c-website').value,t:START})});
+        bericht:$('c-bericht').value.trim(),nieuwsbrief:$('c-nieuwsbrief').checked,website:$('c-website').value,t:START})});
       const j=await r.json().catch(()=>({})); ok=r.ok&&j.ok;
     }catch(err){}
     knop.disabled=false; knop.textContent='Bericht versturen'; msg.hidden=false;

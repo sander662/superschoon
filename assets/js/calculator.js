@@ -300,9 +300,10 @@ function update(){
 $('m2').addEventListener('input',update);
 $('gemeente').addEventListener('input',update);
 $('chips').addEventListener('click',e=>{const b=e.target.closest('button'); if(!b) return; $('m2').value=b.dataset.v; update(); $('m2').focus();});
-const gekozenTypes=()=>[...document.querySelectorAll('input[name=type]:checked')].map(i=>i.value);
+const gekozenTypes=()=>[...document.querySelectorAll('input[name=type]:checked')].map(i=>i.value==='Andere'?'Andere: '+($('andere-tekst').value.trim()||'?'):i.value);
+$('type-andere').addEventListener('change',e=>{ $('andere-wrap').hidden=!e.target.checked; if(e.target.checked) $('andere-tekst').focus(); });
 const CHECKS={
-  types:()=>gekozenTypes().length?'':'Duid minstens één type verharding aan.',
+  types:()=>!gekozenTypes().length?'Duid minstens één type verharding aan.':($('type-andere').checked&&!$('andere-tekst').value.trim()?'Vul in welke andere verharding je hebt.':''),
   m2:()=>berekenPrijs(m2Waarde())?'':'Vul een oppervlakte van minstens 1 m² in.',
   naam:()=>$('naam').value.trim().length>1?'':'Vul je naam in.',
   email:()=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($('email').value.trim())?'':'Vul een geldig e-mailadres in, bv. naam@voorbeeld.be.',
@@ -322,7 +323,7 @@ $('form').addEventListener('submit',async e=>{
   const m2=m2Waarde(), rein=berekenPrijs(m2), vp=verplaatsing();
   const excl=rein+(vp.status==='ok'?vp.kost:0);
   const aanvraag={naam:$('naam').value.trim(),email:$('email').value.trim(),tel:$('tel').value.trim(),
-    types:gekozenTypes(), adres:`${$('straat').value.trim()}, ${$('postcode').value.trim()} ${$('gemeente').value.trim()}`,
+    types:gekozenTypes(), nieuwsbrief:$('nieuwsbrief').checked, adres:`${$('straat').value.trim()}, ${$('postcode').value.trim()} ${$('gemeente').value.trim()}`,
     m2, reiniging:rein, verplaatsing: vp.status==='ok'?vp.kost:null, totaalExcl:excl, totaalIncl:Math.round(excl*121)/100, opmerking:$('opm').value.trim(), zones: zones.map(z=>({m2:Math.round(geoOpp(z.punten)*10)/10, punten:z.punten.map(p=>[+p.lat.toFixed(7),+p.lng.toFixed(7)])}))};
   aanvraag.type='offerte'; aanvraag.website=$('hp-website').value; aanvraag.t=START_TIJD;
   const knop=document.querySelector('#form button[type=submit]'); knop.disabled=true; knop.textContent='Bezig met versturen…';
@@ -344,7 +345,7 @@ $('form').addEventListener('submit',async e=>{
   document.querySelectorAll('#form .panel:not(.done)').forEach(p=>p.hidden=true); document.querySelector('.calc-side').hidden=true;
   $('done').hidden=false; $('done').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
 });
-$('nieuw').addEventListener('click',()=>{ stopTekenen(); [...zones].forEach(z=>zoneWeg(z.id)); zetModus(false); $('form').reset(); $('m2').value=40; document.querySelectorAll('#form .panel').forEach(p=>p.hidden=false); document.querySelector('.calc-side').hidden=false; $('done').hidden=true; Object.keys(CHECKS).forEach(k=>{$('e-'+k).textContent='';}); update(); $('m2').focus(); });
+$('nieuw').addEventListener('click',()=>{ stopTekenen(); [...zones].forEach(z=>zoneWeg(z.id)); zetModus(false); $('form').reset(); $('andere-wrap').hidden=true; $('m2').value=40; document.querySelectorAll('#form .panel').forEach(p=>p.hidden=false); document.querySelector('.calc-side').hidden=false; $('done').hidden=true; Object.keys(CHECKS).forEach(k=>{$('e-'+k).textContent='';}); update(); $('m2').focus(); });
 /* ---------- Oppervlakte intekenen op luchtfoto ----------
    Luchtfoto: Digitaal Vlaanderen, Orthofotomozaïek middenschalig zomeropnamen 2024 (WMTS, Vlaamse Open Data licentie).
    Daaronder OpenStreetMap als reserve buiten Vlaanderen. Adres zoeken: geolocatiedienst Digitaal Vlaanderen,

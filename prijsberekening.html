@@ -55,7 +55,10 @@
               <label class="vtype"><input type="checkbox" name="type" value="Kleiklinker">Kleiklinker</label>
               <label class="vtype"><input type="checkbox" name="type" value="XL-tegel">XL-tegel</label>
               <label class="vtype"><input type="checkbox" name="type" value="Houten terras">Houten terras</label>
+              <label class="vtype"><input type="checkbox" name="type" value="Gepolierde beton">Gepolierde beton</label>
+              <label class="vtype"><input type="checkbox" name="type" value="Andere" id="type-andere">Andere</label>
             </fieldset>
+            <div class="f" id="andere-wrap" hidden><label for="andere-tekst">Welke verharding?</label><input id="andere-tekst" name="andere" maxlength="60" placeholder="Bv. kasseien, asfalt, composiet terras"></div>
             <div class="ferr" id="e-types"></div>
           </div>
           <div class="f full">
@@ -102,6 +105,7 @@
           <p class="hint full" id="zinfo">De verplaatsingskost hangt af van je gemeente.</p>
           <div class="f full"><label for="opm">Opmerking <span class="opt">(optioneel)</span></label><textarea id="opm" name="opm" placeholder="Bv. bereikbaarheid, gewenste periode"></textarea></div>
           <label class="consent full" for="ok"><input type="checkbox" id="ok" name="ok" required><span>Ik geef Super Schoon toestemming om mijn gegevens te gebruiken om contact met mij op te nemen over deze aanvraag. Meer in onze <a href="privacy.html">privacyverklaring</a>.</span></label>
+          <label class="consent full" for="nieuwsbrief"><input type="checkbox" id="nieuwsbrief" name="nieuwsbrief"><span>Ja, ik wil de nieuwsbrief van Super Schoon en S&amp;S Projects ontvangen <span class="opt">(optioneel, je kan je altijd uitschrijven)</span>.</span></label>
           <div class="ferr full" id="e-ok"></div>
         </div>
         <div class="hp" aria-hidden="true"><label for="hp-website">Laat dit veld leeg</label><input id="hp-website" name="website" tabindex="-1" autocomplete="off"></div>
