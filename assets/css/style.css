@@ -215,9 +215,22 @@ input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--warn
 @media (max-width:700px){.endorse{grid-template-columns:minmax(0,1fr);padding:24px;gap:24px}.endorse-mark{width:130px;height:130px;font-size:16px}}
 
 /* team */
-.team{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px}
-.team li{display:flex;flex-direction:column;gap:4px}
-.team img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:var(--radius);background:var(--stone);margin-bottom:10px}
-.team h3{font-size:20px}
-.team p{color:var(--muted);font-size:15px}
-@media (max-width:900px){.team{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.team-wrap{display:flex;flex-direction:column;gap:24px}
+.team-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:40px;align-items:end}
+.founders{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.crew{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:16px}
+.crew .tcard figcaption{padding:40px 12px 12px}
+.crew .tcard strong{font-size:18px}
+.crew .tcard span{font-size:10.5px;letter-spacing:.1em}
+@media (max-width:1100px){.crew{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.crew .tcard strong{font-size:22px}.crew .tcard span{font-size:12px}}
+.tcard{position:relative;margin:0;border-radius:var(--radius);overflow:hidden;background:var(--stone);aspect-ratio:4/5;isolation:isolate}
+.tcard picture,.tcard img{display:block;width:100%;height:100%}
+.tcard img{object-fit:cover;object-position:50% 35%}
+.tcard figcaption{position:absolute;left:0;right:0;bottom:0;padding:48px 18px 16px;display:flex;flex-direction:column;gap:2px;color:#fff;background:linear-gradient(to top,rgba(17,17,17,.85),rgba(17,17,17,.55) 45%,rgba(17,17,17,0))}
+.tcard strong{font-family:var(--display);font-weight:400;font-size:22px;line-height:1.15}
+.tcard span{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#d9e8d0}
+.tcard-groot strong{font-size:26px}
+.tcard-groot figcaption::before{content:"";width:28px;height:3px;background:var(--green);margin-bottom:10px;border-radius:2px}
+@media (prefers-reduced-motion:no-preference){.tcard img{transition:transform .5s ease}.tcard:hover img{transform:scale(1.04)}}
+@media (max-width:980px){.team-top{grid-template-columns:minmax(0,1fr);gap:24px}}
+@media (max-width:700px){.crew{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.founders{gap:12px}.tcard figcaption{padding:36px 12px 12px}.tcard strong{font-size:18px}.tcard-groot strong{font-size:20px}.tcard span{font-size:10.5px;letter-spacing:.1em}}
