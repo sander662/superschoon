@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /verstuur.php
+
+Sitemap: https://www.superschoon.be/sitemap.xml
