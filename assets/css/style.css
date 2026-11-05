@@ -234,3 +234,18 @@ input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--warn
 @media (prefers-reduced-motion:no-preference){.tcard img{transition:transform .5s ease}.tcard:hover img{transform:scale(1.04)}}
 @media (max-width:980px){.team-top{grid-template-columns:minmax(0,1fr);gap:24px}}
 @media (max-width:700px){.crew{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.founders{gap:12px}.tcard figcaption{padding:36px 12px 12px}.tcard strong{font-size:18px}.tcard-groot strong{font-size:20px}.tcard span{font-size:10.5px;letter-spacing:.1em}}
+
+/* gemeentepagina's en sitemap */
+.plaatsen{list-style:none;margin:0;padding:0;columns:4 170px;column-gap:24px}
+.plaatsen li{break-inside:avoid;padding:3px 0}
+.prijstabel{min-width:0}
+.prijstabel caption{text-align:left;font-weight:600;padding:0 0 8px}
+.prijstabel td{font-weight:600;color:var(--green-ink)}
+.az-nav{display:flex;flex-wrap:wrap;gap:6px}
+.az-nav a{display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:36px;border:1.5px solid var(--line);border-radius:5px;text-decoration:none;font-weight:600}
+.az-nav a:hover,.az-nav a:focus-visible{border-color:var(--green-ink);color:var(--green-ink)}
+.az{columns:4 200px;column-gap:28px}
+.az-groep{break-inside:avoid;margin:0 0 18px;scroll-margin-top:96px}
+.az-groep h3{font-size:20px;margin:0 0 4px;color:var(--green-ink)}
+.az-groep ul{list-style:none;margin:0;padding:0}
+.az-groep li{padding:2px 0}

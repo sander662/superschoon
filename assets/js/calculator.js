@@ -495,4 +495,6 @@ $('klaarbtn').addEventListener('click',()=>{ if(bezig&&bezig.punten.length>=3) a
 $('undobtn').addEventListener('click',laatsteWeg);
 $('stopbtn').addEventListener('click',stopTekenen);
 
+// gemeente voorinvullen vanaf een gemeentepagina (?gemeente=...)
+try{ const qg=new URLSearchParams(location.search).get('gemeente'); if(qg&&!$('gemeente').value) $('gemeente').value=qg.slice(0,80); }catch(e){}
 update();
