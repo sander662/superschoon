@@ -54,3 +54,24 @@
 .done dd{margin:0;min-width:0;overflow-wrap:anywhere}
 .linkbtn{background:none;border:0;color:var(--green-ink);font:600 15px var(--body);cursor:pointer;padding:0;text-decoration:underline}
 .leaflet-container{font-family:var(--body)}
+
+/* foto's */
+.fotolijst{list-style:none;margin:4px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+.fotolijst:empty{display:none}
+.fotolijst li{position:relative;aspect-ratio:1;border-radius:5px;overflow:hidden;background:var(--stone)}
+.fotolijst img{width:100%;height:100%;object-fit:cover}
+.fotoweg{position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(17,17,17,.75);color:#fff;font:600 16px/1 var(--body);cursor:pointer}
+.fotoweg:hover,.fotoweg:focus-visible{background:#000}
+/* kortingscode */
+.kcode{display:flex;flex-direction:column;gap:6px;border-top:1px solid #3a3a37;padding-top:12px}
+.kcode label{font-size:13px;color:#bdbdb7;font-weight:600}
+.kcode-rij{display:flex;gap:8px}
+.kcode input{flex:1;min-width:0;background:#222;border-color:#444;color:#fff;text-transform:uppercase;letter-spacing:.06em;padding:9px 11px;font-size:15px}
+.kcode input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(106,168,79,.3)}
+.kcode .mbtn{background:transparent;color:#fff;border-color:#555}
+.kcode .mbtn:hover,.kcode .mbtn:focus-visible{border-color:var(--green);color:#fff}
+.kcode-msg{font-size:13px;margin:0;color:#bdbdb7;min-height:0}
+.kcode-msg:empty{display:none}
+.kcode-msg.ok{color:#a9d68f}
+.kcode-msg.err{color:#f0b37a}
+#rKortingRij span:last-child{color:#a9d68f}

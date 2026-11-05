@@ -20,7 +20,7 @@
 <link rel="preload" href="assets/fonts/questrial-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/css/style.css?v=5147ba5d">
 <link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css">
-<link rel="stylesheet" href="assets/css/calculator.css?v=b3922d15">
+<link rel="stylesheet" href="assets/css/calculator.css?v=5fbe3219">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "LocalBusiness", "@id": "https://www.superschoon.be/#bedrijf", "name": "Super Schoon", "alternateName": "Super Schoon by S&S Projects", "description": "Ecologische reiniging van buitenverhardingen zoals terrassen, opritten en paden, met een gepatenteerd borstelsysteem, zonder chemicaliën, zeep, stoom of hogedruk.", "url": "https://www.superschoon.be/", "logo": "https://www.superschoon.be/assets/img/logo-superschoon.svg", "image": "https://www.superschoon.be/assets/img/og-superschoon.jpg", "telephone": "+32468430053", "email": "info@ssprojects.be", "vatID": "BE0735883273", "address": {"@type": "PostalAddress", "streetAddress": "Beekveldstraat 1A", "postalCode": "1980", "addressLocality": "Zemst", "addressCountry": "BE"}, "parentOrganization": {"@type": "Organization", "name": "S&S Projects BV", "url": "https://www.ssprojects.be"}, "knowsAbout": ["terrasreiniging", "opritreiniging", "ecologische reiniging van buitenverhardingen", "reiniging zonder hogedruk"], "areaServed": "Vlaanderen"}</script>
 </head>
 <body>
@@ -103,6 +103,13 @@
           <div class="f"><label for="postcode">Postcode</label><input id="postcode" name="postcode" inputmode="numeric" autocomplete="postal-code" maxlength="4" required><div class="ferr" id="e-postcode"></div></div>
           <div class="f"><label for="gemeente">Gemeente</label><input id="gemeente" name="gemeente" list="gemeenten" autocomplete="address-level2" required><datalist id="gemeenten"></datalist><div class="ferr" id="e-gemeente"></div></div>
           <p class="hint full" id="zinfo">De verplaatsingskost hangt af van je gemeente.</p>
+          <div class="f full">
+            <label for="fotos">Foto's van je verharding <span class="opt">(optioneel, max. 6)</span></label>
+            <input id="fotos" name="fotos" type="file" accept="image/*" multiple>
+            <p class="hint">Een paar foto's helpen ons de prijs meteen juist in te schatten. Ze worden verkleind en alleen per e-mail naar ons verstuurd.</p>
+            <ul class="fotolijst" id="fotolijst"></ul>
+            <div class="ferr" id="e-fotos"></div>
+          </div>
           <div class="f full"><label for="opm">Opmerking <span class="opt">(optioneel)</span></label><textarea id="opm" name="opm" placeholder="Bv. bereikbaarheid, gewenste periode"></textarea></div>
           <label class="consent full" for="ok"><input type="checkbox" id="ok" name="ok" required><span>Ik geef Super Schoon toestemming om mijn gegevens te gebruiken om contact met mij op te nemen over deze aanvraag. Meer in onze <a href="privacy.html">privacyverklaring</a>.</span></label>
           <label class="consent full" for="nieuwsbrief"><input type="checkbox" id="nieuwsbrief" name="nieuwsbrief"><span>Ja, ik wil de nieuwsbrief van Super Schoon en S&amp;S Projects ontvangen <span class="opt">(optioneel, je kan je altijd uitschrijven)</span>.</span></label>
@@ -133,7 +140,13 @@
         <div class="rows">
           <div><span>Reiniging</span><span id="rRein">€ 0</span></div>
           <div><span>Verplaatsing</span><span id="rRit">vul je gemeente in</span></div>
+          <div id="rKortingRij" hidden><span id="rKortingLabel">Korting</span><span id="rKorting">– € 0</span></div>
           <div><span>Totaal excl. btw</span><span id="rExcl">€ 0</span></div>
+        </div>
+        <div class="kcode">
+          <label for="kcode">Kortingscode</label>
+          <div class="kcode-rij"><input id="kcode" name="kcode" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="30"><button type="button" class="mbtn" id="kcode-btn">Toepassen</button></div>
+          <p class="kcode-msg" id="kcode-msg" aria-live="polite"></p>
         </div>
         <p class="note" id="pNote">Indicatieve prijs. De definitieve prijs bevestigen we na een korte controle ter plaatse of aan de hand van foto's. Zie ook onze <a href="algemene-voorwaarden.html" style="color:#fff">algemene voorwaarden</a>.</p>
       </div>
@@ -179,6 +192,6 @@
 </footer>
 <script src="assets/js/site.js?v=55f727ba" defer></script>
 <script src="assets/vendor/leaflet/leaflet.js"></script>
-<script src="assets/js/calculator.js?v=a292b963"></script>
+<script src="assets/js/calculator.js?v=06e3aa11"></script>
 </body>
 </html>

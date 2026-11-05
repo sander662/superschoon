@@ -10,6 +10,8 @@
  */
 declare(strict_types=1);
 date_default_timezone_set('Europe/Brussels');
+define('SUPERSCHOON', true);
+require __DIR__ . '/kortingscodes.php';
 
 const ONTVANGER = 'info@ssprojects.be';
 const AFZENDER  = 'noreply@superschoon.be';
@@ -29,7 +31,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     antwoord(405, ['ok' => false, 'fout' => 'Alleen POST is toegelaten.']);
 }
 
-$ruw = file_get_contents('php://input', false, null, 0, 200000);
+$ruw = file_get_contents('php://input', false, null, 0, 15000000);
 $in = json_decode((string)$ruw, true);
 if (!is_array($in)) {
     antwoord(400, ['ok' => false, 'fout' => 'Ongeldige aanvraag.']);
@@ -74,16 +76,28 @@ function prijsReiniging(float $m2): ?int {
     else $p = 750 + 6 * ($m2 - 100);
     return (int)round($p);
 }
-function verstuur(string $aan, string $onderwerp, string $body, ?string $antwoordAan = null): bool {
+function verstuur(string $aan, string $onderwerp, string $body, ?string $antwoordAan = null, array $bijlagen = []): bool {
     $headers = [
         'From: ' . mb_encode_mimeheader(NAAM, 'UTF-8') . ' <' . AFZENDER . '>',
         'MIME-Version: 1.0',
-        'Content-Type: text/plain; charset=UTF-8',
-        'Content-Transfer-Encoding: 8bit',
         'X-Mailer: SuperSchoon-website',
     ];
     if ($antwoordAan) $headers[] = 'Reply-To: ' . $antwoordAan;
-    return mail($aan, mb_encode_mimeheader($onderwerp, 'UTF-8'), $body, implode("\r\n", $headers), '-f' . AFZENDER);
+    if (!$bijlagen) {
+        $headers[] = 'Content-Type: text/plain; charset=UTF-8';
+        $headers[] = 'Content-Transfer-Encoding: 8bit';
+        $inhoud = $body;
+    } else {
+        $grens = 'ss_' . bin2hex(random_bytes(12));
+        $headers[] = 'Content-Type: multipart/mixed; boundary="' . $grens . '"';
+        $inhoud = "--$grens\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\n$body\r\n";
+        foreach ($bijlagen as [$naam, $data]) {
+            $inhoud .= "--$grens\r\nContent-Type: image/jpeg; name=\"$naam\"\r\nContent-Transfer-Encoding: base64\r\n"
+                     . "Content-Disposition: attachment; filename=\"$naam\"\r\n\r\n" . chunk_split(base64_encode($data)) . "\r\n";
+        }
+        $inhoud .= "--$grens--\r\n";
+    }
+    return mail($aan, mb_encode_mimeheader($onderwerp, 'UTF-8'), $inhoud, implode("\r\n", $headers), '-f' . AFZENDER);
 }
 
 /* ---- gemeenschappelijke velden ---- */
@@ -125,8 +139,20 @@ if ($rein === null || $adres === '' || !$types) {
     antwoord(422, ['ok' => false, 'fout' => 'Oppervlakte, adres of type verharding ontbreekt.']);
 }
 $rit   = is_numeric($in['verplaatsing'] ?? null) ? (float)$in['verplaatsing'] : null;
-$excl  = $rein + ($rit ?? 0);
+$korting = zoekKorting(regel($in['kortingscode'] ?? '', 30));
+$kb    = kortingBedrag($korting, $rein + ($rit ?? 0));
+$excl  = $rein + ($rit ?? 0) - $kb;
 $incl  = round($excl * 1.21, 2);
+
+// foto's: max. 6, alleen geldige JPEG-afbeeldingen van max. 3 MB; ze worden enkel gemaild, niet bewaard
+$bijlagen = [];
+foreach (array_slice(is_array($in['fotos'] ?? null) ? $in['fotos'] : [], 0, 6) as $i => $f) {
+    $data = base64_decode((string)($f['data'] ?? ''), true);
+    if ($data === false || strlen($data) > 3000000) continue;
+    $info = @getimagesizefromstring($data);
+    if (!$info || $info[2] !== IMAGETYPE_JPEG) continue;
+    $bijlagen[] = [sprintf('foto-%d.jpg', $i + 1), $data];
+}
 
 $zonesTxt = '';
 $zones = is_array($in['zones'] ?? null) ? array_slice($in['zones'], 0, 20) : [];
@@ -151,15 +177,18 @@ $body = "Nieuwe offerteaanvraag via superschoon.be ($tijd)\n\n"
       . "\nPRIJS (zoals getoond op de website)\n"
       . "Reiniging:    " . eur($rein) . " excl. btw\n"
       . "Verplaatsing: " . ($rit === null ? 'op aanvraag (gemeente niet gevonden)' : eur($rit) . ' excl. btw') . "\n"
+      . ($korting ? "Korting:      – " . eur($kb) . " (code {$korting['code']}: {$korting['label']})\n" : '')
       . "Totaal:       " . eur($excl) . " excl. btw – " . eur($incl) . " incl. 21% btw\n\n"
+      . "Foto's:       " . (count($bijlagen) ?: 'geen') . ($bijlagen ? ' (in bijlage)' : '') . "\n\n"
       . "Opmerking:\n" . ($opm ?: '-') . "\n";
-$ok = verstuur(ONTVANGER, "Offerteaanvraag: $naam – " . number_format($m2, 0, ',', '.') . ' m²', $body, $email);
+$ok = verstuur(ONTVANGER, "Offerteaanvraag: $naam – " . number_format($m2, 0, ',', '.') . ' m²', $body, $email, $bijlagen);
 
 $bev = "Beste $naam,\n\nBedankt voor je aanvraag bij Super Schoon. We nemen zo snel mogelijk contact met je op om een datum te plannen.\n\n"
      . "Je aanvraag:\n"
      . "- Verharding: " . implode(', ', $types) . "\n"
      . "- Oppervlakte: " . number_format($m2, 1, ',', '.') . " m²\n"
      . "- Adres: $adres\n"
+     . ($korting ? "- Kortingscode: {$korting['code']} ({$korting['label']})\n" : '')
      . "- Indicatieve prijs: " . eur($incl) . " incl. btw" . ($rit === null ? ' + verplaatsing' : '') . "\n\n"
      . "Dit is een indicatieve prijs. De definitieve prijs bevestigen we na een korte controle ter plaatse of aan de hand van foto's.\n"
      . "Onze algemene voorwaarden: https://www.superschoon.be/algemene-voorwaarden.html\n\n"

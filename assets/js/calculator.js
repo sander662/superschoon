@@ -282,6 +282,46 @@ function verplaatsing(){
   return {status:'ok',kost,plaats:e,lez:LEZ.includes(e.hoofd)};
 }
 function m2Waarde(){ return parseFloat(String($('m2').value).replace(',','.')); }
+/* ---------- Kortingscode (controle op de server: korting.php) ---------- */
+let korting=null; // {code,type:'procent'|'bedrag',waarde,label}
+function kortingBedrag(excl){ if(!korting) return 0; const k= korting.type==='procent' ? excl*korting.waarde/100 : korting.waarde; return Math.min(excl, Math.round(k*100)/100); }
+async function kortingToepassen(){
+  const code=$('kcode').value.trim().toUpperCase(); const msg=$('kcode-msg'); msg.className='kcode-msg';
+  if(!code){ korting=null; msg.textContent=''; update(); return; }
+  $('kcode-btn').disabled=true; msg.textContent='Code controleren…';
+  try{
+    const r=await fetch('korting.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
+    const j=await r.json();
+    if(j.ok){ korting={code,type:j.type,waarde:j.waarde,label:j.label}; msg.classList.add('ok'); msg.textContent=`Code ${code} toegepast: ${j.label}.`; }
+    else { korting=null; msg.classList.add('err'); msg.textContent=j.fout||'Deze code is niet geldig.'; }
+  }catch(e){ korting=null; msg.classList.add('err'); msg.textContent='De code kon niet gecontroleerd worden. Probeer het later opnieuw.'; }
+  $('kcode-btn').disabled=false; update();
+}
+$('kcode-btn').addEventListener('click',kortingToepassen);
+$('kcode').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); kortingToepassen(); } });
+$('kcode').addEventListener('input',()=>{ if(korting){ korting=null; $('kcode-msg').textContent=''; $('kcode-msg').className='kcode-msg'; update(); } });
+
+/* ---------- Foto's (worden in de browser verkleind tot max. 1600 px) ---------- */
+const MAX_FOTOS=6; let fotos=[]; // {naam, data (base64 jpeg), url}
+async function verklein(file){
+  const bm=await createImageBitmap(file); const s=Math.min(1,1600/Math.max(bm.width,bm.height));
+  const c=document.createElement('canvas'); c.width=Math.round(bm.width*s); c.height=Math.round(bm.height*s);
+  c.getContext('2d').drawImage(bm,0,0,c.width,c.height);
+  const url=c.toDataURL('image/jpeg',0.8); return {naam:file.name.replace(/\.[^.]+$/,'')+'.jpg', data:url.split(',')[1], url};
+}
+function toonFotos(){
+  const ul=$('fotolijst'); ul.replaceChildren();
+  fotos.forEach((f,i)=>{ const li=document.createElement('li'); const img=document.createElement('img'); img.src=f.url; img.alt='Foto '+(i+1);
+    const b=document.createElement('button'); b.type='button'; b.className='fotoweg'; b.setAttribute('aria-label','Foto '+(i+1)+' verwijderen'); b.textContent='×';
+    b.addEventListener('click',()=>{ fotos.splice(i,1); toonFotos(); }); li.append(img,b); ul.append(li); });
+}
+$('fotos').addEventListener('change',async e=>{
+  const files=[...e.target.files].filter(f=>f.type.startsWith('image/')); $('e-fotos').textContent='';
+  for(const f of files){ if(fotos.length>=MAX_FOTOS){ $('e-fotos').textContent=`Je kan maximaal ${MAX_FOTOS} foto's meesturen.`; break; }
+    try{ fotos.push(await verklein(f)); }catch(err){ $('e-fotos').textContent='Een van de foto\'s kon niet gelezen worden. Probeer een JPG- of PNG-bestand.'; } }
+  e.target.value=''; toonFotos();
+});
+
 function update(){
   const m2=m2Waarde(); const rein=berekenPrijs(m2); const vp=verplaatsing(); const zi=$('zinfo'); zi.classList.remove('warn');
   if(vp.status==='leeg') zi.textContent='De verplaatsingskost hangt af van je gemeente.';
@@ -290,12 +330,14 @@ function update(){
   else zi.textContent= vp.kost===0 ? `${vp.plaats.naam}: geen verplaatsingskost.` : `${vp.plaats.naam}: verplaatsingskost ${eur(vp.kost)} excl. btw.`+(vp.lez?' In de lage-emissiezone komt er een kleine LEZ-toeslag bij.':'');
   if(!rein){ $('pIncl').textContent='€ 0'; $('pSub').textContent='vul een oppervlakte in'; $('rRein').textContent='–'; $('rExcl').textContent='–'; $('rRit').textContent='–'; return; }
   const rit= vp.status==='ok'?vp.kost:0;
-  const excl=rein+rit;
+  const kb=kortingBedrag(rein+rit);
+  const excl=rein+rit-kb;
+  $('rKortingRij').hidden=!kb; if(kb){ $('rKortingLabel').textContent=`Korting (${korting.code})`; $('rKorting').textContent='– '+eur2(kb).replace(/,00$/,''); }
   $('pIncl').textContent=eur2(excl*1.21).replace(/,00$/,'');
   $('pSub').textContent=`voor ${m2.toLocaleString('nl-BE')} m²`+(vp.status==='ok'?` in ${vp.plaats.naam}`:'');
   $('rRein').textContent=eur(rein);
   $('rRit').textContent= vp.status==='ok' ? (vp.kost===0?'gratis':eur(vp.kost)) : vp.status==='onbekend' ? 'op aanvraag' : 'vul je gemeente in';
-  $('rExcl').textContent=eur(excl);
+  $('rExcl').textContent=eur2(excl).replace(/,00$/,'');
 }
 $('m2').addEventListener('input',update);
 $('gemeente').addEventListener('input',update);
@@ -321,10 +363,11 @@ $('form').addEventListener('submit',async e=>{
   const fout=Object.keys(CHECKS).filter(k=>!check(k));
   if(fout.length){ (fout[0]==='types'?document.querySelector('input[name=type]'):$(fout[0])).focus(); return; }
   const m2=m2Waarde(), rein=berekenPrijs(m2), vp=verplaatsing();
-  const excl=rein+(vp.status==='ok'?vp.kost:0);
+  const kb=kortingBedrag(rein+(vp.status==='ok'?vp.kost:0));
+  const excl=rein+(vp.status==='ok'?vp.kost:0)-kb;
   const aanvraag={naam:$('naam').value.trim(),email:$('email').value.trim(),tel:$('tel').value.trim(),
     types:gekozenTypes(), nieuwsbrief:$('nieuwsbrief').checked, adres:`${$('straat').value.trim()}, ${$('postcode').value.trim()} ${$('gemeente').value.trim()}`,
-    m2, reiniging:rein, verplaatsing: vp.status==='ok'?vp.kost:null, totaalExcl:excl, totaalIncl:Math.round(excl*121)/100, opmerking:$('opm').value.trim(), zones: zones.map(z=>({m2:Math.round(geoOpp(z.punten)*10)/10, punten:z.punten.map(p=>[+p.lat.toFixed(7),+p.lng.toFixed(7)])}))};
+    m2, reiniging:rein, verplaatsing: vp.status==='ok'?vp.kost:null, kortingscode: korting?korting.code:'', totaalExcl:excl, totaalIncl:Math.round(excl*121)/100, fotos: fotos.map(f=>({naam:f.naam,data:f.data})), opmerking:$('opm').value.trim(), zones: zones.map(z=>({m2:Math.round(geoOpp(z.punten)*10)/10, punten:z.punten.map(p=>[+p.lat.toFixed(7),+p.lng.toFixed(7)])}))};
   aanvraag.type='offerte'; aanvraag.website=$('hp-website').value; aanvraag.t=START_TIJD;
   const knop=document.querySelector('#form button[type=submit]'); knop.disabled=true; knop.textContent='Bezig met versturen…';
   $('sendmsg').hidden=true;
@@ -340,12 +383,14 @@ $('form').addEventListener('submit',async e=>{
   const rijen=[['Verharding',aanvraag.types.join(', ')],['Oppervlakte',`${m2.toLocaleString('nl-BE')} m²`],['Adres',aanvraag.adres],['E-mail',aanvraag.email],['Telefoon',aanvraag.tel],
     ['Prijs',`${eur2(aanvraag.totaalIncl)} incl. btw`+(vp.status==='ok'?'':' + verplaatsing')]];
   if(aanvraag.zones.length) rijen.push(['Op kaart',`${aanvraag.zones.length} zone${aanvraag.zones.length>1?'s':''} ingetekend`]);
+  if(korting) rijen.push(['Kortingscode',`${korting.code} (${korting.label})`]);
+  if(fotos.length) rijen.push(["Foto's",`${fotos.length} meegestuurd`]);
   if(aanvraag.opmerking) rijen.push(['Opmerking',aanvraag.opmerking]);
   $('d-list').replaceChildren(...rijen.flatMap(([a,b])=>{const dt=document.createElement('dt');dt.textContent=a;const dd=document.createElement('dd');dd.textContent=b;return [dt,dd];}));
   document.querySelectorAll('#form .panel:not(.done)').forEach(p=>p.hidden=true); document.querySelector('.calc-side').hidden=true;
   $('done').hidden=false; $('done').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
 });
-$('nieuw').addEventListener('click',()=>{ stopTekenen(); [...zones].forEach(z=>zoneWeg(z.id)); zetModus(false); $('form').reset(); $('andere-wrap').hidden=true; $('m2').value=40; document.querySelectorAll('#form .panel').forEach(p=>p.hidden=false); document.querySelector('.calc-side').hidden=false; $('done').hidden=true; Object.keys(CHECKS).forEach(k=>{$('e-'+k).textContent='';}); update(); $('m2').focus(); });
+$('nieuw').addEventListener('click',()=>{ stopTekenen(); [...zones].forEach(z=>zoneWeg(z.id)); zetModus(false); $('form').reset(); $('andere-wrap').hidden=true; fotos=[]; toonFotos(); korting=null; $('kcode-msg').textContent=''; $('m2').value=40; document.querySelectorAll('#form .panel').forEach(p=>p.hidden=false); document.querySelector('.calc-side').hidden=false; $('done').hidden=true; Object.keys(CHECKS).forEach(k=>{$('e-'+k).textContent='';}); update(); $('m2').focus(); });
 /* ---------- Oppervlakte intekenen op luchtfoto ----------
    Luchtfoto: Digitaal Vlaanderen, Orthofotomozaïek middenschalig zomeropnamen 2024 (WMTS, Vlaamse Open Data licentie).
    Daaronder OpenStreetMap als reserve buiten Vlaanderen. Adres zoeken: geolocatiedienst Digitaal Vlaanderen,
