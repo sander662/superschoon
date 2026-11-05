@@ -1,5 +1,9 @@
 # Super Schoon – instellingen voor OVH (Apache)
 Options -Indexes
+
+# Git-map en README niet tonen (de site wordt via Git gedeployed)
+RedirectMatch 404 /\.git
+RedirectMatch 404 ^/README\.md$
 ErrorDocument 404 /404.html
 
 <IfModule mod_rewrite.c>
