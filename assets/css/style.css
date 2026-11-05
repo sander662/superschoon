@@ -249,3 +249,4 @@ input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--warn
 .az-groep h3{font-size:20px;margin:0 0 4px;color:var(--green-ink)}
 .az-groep ul{list-style:none;margin:0;padding:0}
 .az-groep li{padding:2px 0}
+.az-groep .pc{color:var(--muted);font-size:13px}
