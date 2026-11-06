@@ -72,7 +72,6 @@ if ($actie === 'aanvaarden') {
         . "- Saldo: " . offerte_eur($sch['saldo']) . " – na de uitvoering van de werken.\n\n"
         . "We contacteren je om een datum af te spreken.\n\n"
         . "Je offerte, met je handtekening en de algemene voorwaarden, blijft beschikbaar via:\n$url\n\n"
-        . "Je herroepingsrecht vind je in artikel 12 van de algemene voorwaarden: https://www.superschoon.be/algemene-voorwaarden.html\n\n"
         . "Met vriendelijke groeten,\nSuper Schoon by S&S Projects\n0468 43 00 53 – info@ssprojects.be\nwww.superschoon.be\n");
     mail_txt(ONTVANGER, "AANVAARD: offerte {$o['nummer']} – {$k['naam']} – $bedrag",
         "Offerte {$o['nummer']} is online aanvaard op " . date('d/m/Y H:i', $nu) . " door $naam.\n\n"
