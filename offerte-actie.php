@@ -58,19 +58,23 @@ if ($actie === 'aanvaarden') {
     stats_log('aanvaard', ['p' => '/offerte.php', 'nr' => $o['nummer'], 'b' => $o['totaal_excl'], 'g' => $k['gemeente'] ?? '']);
     $tot = date('d/m/Y', $nu + OFFERTE_HERROEPING_DAGEN * 86400);
     $bedrag = offerte_eur((float)$o['totaal_incl']);
+    $sch = offerte_schema($o);
     mail_txt($k['email'], "Bevestiging: je hebt offerte {$o['nummer']} aanvaard",
         "Beste {$k['naam']},\n\nBedankt! Je hebt offerte {$o['nummer']} van Super Schoon aanvaard op " . date('d/m/Y \o\m H:i', $nu) . ".\n\n"
         . "- Reiniging van " . number_format((float)$o['m2'], 1, ',', '.') . " m² (" . implode(', ', $o['types']) . ")\n"
         . "- Adres: {$k['adres']}\n- Totaal: $bedrag incl. btw\n\n"
-        . "We nemen contact met je op om een datum te plannen. Je factuur ontvang je na de uitvoering.\n\n"
+        . "Betaling:\n- Eerste voorschot (10%): " . offerte_eur($sch['voorschot1']) . " – je ontvangt hiervoor een factuur.\n"
+        . "- Tweede voorschot (25%): " . offerte_eur($sch['voorschot2']) . " – zodra de uitvoeringsdatum ingepland is.\n"
+        . "- Saldo: " . offerte_eur($sch['saldo']) . " – na de uitvoering van de werken.\n\n"
+        . "We contacteren je om een datum af te spreken.\n\n"
         . "Je offerte, met je handtekening en de algemene voorwaarden, blijft beschikbaar via:\n$url\n\n"
-        . "Herroepingsrecht: als consument kan je deze overeenkomst tot en met $tot kosteloos en zonder opgave van reden herroepen, via de knop op de offertepagina, per e-mail aan info@ssprojects.be of met het modelformulier onderaan de offerte."
-        . ($vroeg ? " Je hebt gevraagd om de reiniging binnen die termijn uit te voeren. Herroep je daarna nog, dan betaal je het deel dat al uitgevoerd is. Is de reiniging volledig uitgevoerd, dan kan je niet meer herroepen." : '') . "\n\n"
+        . "Je herroepingsrecht vind je in artikel 12 van de algemene voorwaarden: https://www.superschoon.be/algemene-voorwaarden.html\n\n"
         . "Met vriendelijke groeten,\nSuper Schoon by S&S Projects\n0468 43 00 53 – info@ssprojects.be\nwww.superschoon.be\n");
     mail_txt(ONTVANGER, "AANVAARD: offerte {$o['nummer']} – {$k['naam']} – $bedrag",
         "Offerte {$o['nummer']} is online aanvaard op " . date('d/m/Y H:i', $nu) . " door $naam.\n\n"
         . "Klant: {$k['naam']}\nE-mail: {$k['email']}\nTelefoon: {$k['tel']}\nAdres: {$k['adres']}\n"
         . "Oppervlakte: " . number_format((float)$o['m2'], 1, ',', '.') . " m² – " . implode(', ', $o['types']) . "\nTotaal: $bedrag incl. btw\n"
+        . "TE DOEN: voorschotfactuur 10% = " . offerte_eur($sch['voorschot1']) . " (daarna 25% = " . offerte_eur($sch['voorschot2']) . " bij inplanning, saldo " . offerte_eur($sch['saldo']) . ")\n"
         . "Uitvoering binnen de herroepingstermijn gevraagd: " . ($vroeg ? 'JA' : 'nee (niet uitvoeren vóór ' . $tot . ')') . "\n\nOfferte: $url\n", $k['email']);
     uit(200, ['ok' => true]);
 }

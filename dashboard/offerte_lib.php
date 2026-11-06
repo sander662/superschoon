@@ -10,7 +10,8 @@ require_once __DIR__ . '/lib.php';
 
 const OFFERTE_GELDIG_MAANDEN = 1;      // AV art. 2.2: een offerte is één maand geldig
 const OFFERTE_HERROEPING_DAGEN = 14;   // AV art. 12.1
-const OFFERTE_UURTARIEF = null;        // AV art. 6: uurtarief voor extra tijd (in te vullen, bv. 55.0 excl. btw)
+const OFFERTE_UURTARIEF = 60.0;        // AV art. 6: uurtarief voor extra tijd, excl. btw
+const OFFERTE_VOORSCHOTTEN = [0.10, 0.25]; // AV art. 11.1: 10% bij aanvaarding, 25% bij inplanning, saldo na uitvoering
 
 function offerte_dir(): string {
     $d = stats_dir() . '/offertes';
@@ -56,6 +57,12 @@ function offerte_url(array $o): string {
     $host = $_SERVER['HTTP_HOST'] ?? 'www.superschoon.be';
     $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
     return ($https || $host === 'www.superschoon.be' ? 'https' : 'http') . '://' . $host . '/offerte.php?id=' . $o['token'];
+}
+/** Betalingsschema volgens AV art. 11.1. */
+function offerte_schema(array $o): array {
+    $t = (float)$o['totaal_incl'];
+    $v1 = round($t * OFFERTE_VOORSCHOTTEN[0], 2); $v2 = round($t * OFFERTE_VOORSCHOTTEN[1], 2);
+    return ['voorschot1' => $v1, 'voorschot2' => $v2, 'saldo' => round($t - $v1 - $v2, 2)];
 }
 function offerte_eur(float $n): string {
     return '€ ' . number_format($n, 2, ',', '.');
