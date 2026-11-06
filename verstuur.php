@@ -13,6 +13,7 @@ date_default_timezone_set('Europe/Brussels');
 define('SUPERSCHOON', true);
 require __DIR__ . '/kortingscodes.php';
 require __DIR__ . '/dashboard/lib.php';
+require __DIR__ . '/dashboard/offerte_lib.php';
 
 const ONTVANGER = 'info@ssprojects.be';
 const AFZENDER  = 'noreply@superschoon.be';
@@ -169,7 +170,22 @@ foreach ($zones as $i => $z) {
         implode(' | ', array_map(fn($p) => sprintf('%.6f,%.6f', $p[0], $p[1]), $pts)));
 }
 
-$body = "Nieuwe offerteaanvraag via superschoon.be ($tijd)\n\n"
+// ---- online offerte aanmaken ----
+$offerte = [
+    'token' => bin2hex(random_bytes(16)), 'nummer' => offerte_volgnummer(), 'aangemaakt' => time(),
+    'geldig_tot' => strtotime('+' . OFFERTE_GELDIG_MAANDEN . ' month'), 'status' => 'open',
+    'klant' => ['naam' => $naam, 'email' => $email, 'tel' => $tel, 'adres' => $adres, 'gemeente' => regel($in['gemeente'] ?? '', 80)],
+    'types' => $types, 'm2' => round($m2, 1), 'zones' => count($zones), 'fotos' => count($bijlagen), 'opmerking' => $opm,
+    'reiniging' => (float)$rein, 'verplaatsing' => $rit,
+    'korting' => $korting ? ['code' => $korting['code'], 'label' => $korting['label'], 'bedrag' => $kb] : null,
+    'totaal_excl' => round($excl, 2), 'btw' => round($incl - $excl, 2), 'totaal_incl' => $incl,
+    'nieuwsbrief' => $nieuwsbrief === 'ja', 'historiek' => [['t' => time(), 'actie' => 'aangemaakt']],
+];
+$offerteOk = offerte_bewaar($offerte);
+$offerteUrl = $offerteOk ? offerte_url($offerte) : '';
+
+$body = "Nieuwe offerteaanvraag via superschoon.be ($tijd)\n"
+      . ($offerteOk ? "Online offerte {$offerte['nummer']}: $offerteUrl\n" : '') . "\n"
       . "KLANT\n"
       . "Naam:      $naam\nE-mail:    $email\nTelefoon:  $tel\nAdres:     $adres\nNieuwsbrief: $nieuwsbrief\n\n"
       . "VERHARDING\n"
@@ -183,9 +199,11 @@ $body = "Nieuwe offerteaanvraag via superschoon.be ($tijd)\n\n"
       . "Totaal:       " . eur($excl) . " excl. btw – " . eur($incl) . " incl. 21% btw\n\n"
       . "Foto's:       " . (count($bijlagen) ?: 'geen') . ($bijlagen ? ' (in bijlage)' : '') . "\n\n"
       . "Opmerking:\n" . ($opm ?: '-') . "\n";
-$ok = verstuur(ONTVANGER, "Offerteaanvraag: $naam – " . number_format($m2, 0, ',', '.') . ' m²', $body, $email, $bijlagen);
+$ok = verstuur(ONTVANGER, ($offerteOk ? "Offerte {$offerte['nummer']}: " : 'Offerteaanvraag: ') . "$naam – " . number_format($m2, 0, ',', '.') . ' m²', $body, $email, $bijlagen);
 
-$bev = "Beste $naam,\n\nBedankt voor je aanvraag bij Super Schoon. We nemen zo snel mogelijk contact met je op om een datum te plannen.\n\n"
+$bev = "Beste $naam,\n\nBedankt voor je aanvraag bij Super Schoon.\n\n"
+     . ($offerteOk ? "Je offerte {$offerte['nummer']} staat klaar. Je kan ze bekijken, downloaden en meteen online aanvaarden via deze persoonlijke link:\n$offerteUrl\n\nDe offerte is geldig tot " . date('d/m/Y', $offerte['geldig_tot']) . ". Na je aanvaarding nemen we contact op om een datum te plannen.\n\n"
+                   : "We nemen zo snel mogelijk contact met je op om een datum te plannen.\n\n")
      . "Je aanvraag:\n"
      . "- Verharding: " . implode(', ', $types) . "\n"
      . "- Oppervlakte: " . number_format($m2, 1, ',', '.') . " m²\n"
@@ -201,4 +219,4 @@ if ($ok) stats_log('offerte', ['p' => '/prijsberekening.html', 'g' => regel($in[
     'b' => round($excl, 2), 'code' => $korting['code'] ?? '', 'nb' => $nieuwsbrief === 'ja', 'f' => count($bijlagen),
     'kaart' => $zonesTxt !== '', 'ty' => $types]);
 
-antwoord($ok ? 200 : 500, ['ok' => $ok]);
+antwoord($ok ? 200 : 500, ['ok' => $ok] + ($ok && $offerteOk ? ['url' => '/offerte.php?id=' . $offerte['token']] : []));

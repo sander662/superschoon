@@ -380,6 +380,7 @@ $('form').addEventListener('submit',async e=>{
     const r=await fetch('verstuur.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(aanvraag)});
     const j=await r.json().catch(()=>({}));
     gelukt=r.ok&&j.ok;
+    if(gelukt&&j.url){ knop.textContent='Je offerte wordt geopend…'; location.href=j.url; return; }
   }catch(e){}
   knop.disabled=false; knop.textContent='Offerte aanvragen';
   if(!gelukt){ $('sendmsg').hidden=false; $('sendmsg').textContent='Je aanvraag kon niet verstuurd worden. Probeer het opnieuw, of mail ons op info@ssprojects.be of bel 0468 43 00 53.'; return; }
