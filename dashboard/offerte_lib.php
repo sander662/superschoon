@@ -76,7 +76,8 @@ function offerte_lijst(int $max = 100): array {
         if (!is_array($o) || empty($o['token'])) continue;
         $uit[] = ['nummer' => $o['nummer'], 't' => $o['aangemaakt'], 'naam' => $o['klant']['naam'], 'gemeente' => $o['klant']['gemeente'] ?? '',
                   'm2' => $o['m2'], 'incl' => $o['totaal_incl'], 'status' => offerte_status($o), 'token' => $o['token'],
-                  'aanvaard' => $o['aanvaard']['t'] ?? null, 'vroeg' => $o['aanvaard']['vroeg'] ?? null];
+                  'aanvaard' => $o['aanvaard']['t'] ?? null, 'vroeg' => $o['aanvaard']['vroeg'] ?? null,
+                  'tl' => !empty($o['tl']['fout']) || !empty($o['tl']['fout_aanvaard']) ? 'fout' : (!empty($o['tl']['ok']) ? 'ok' : ''), 'betaald' => !empty($o['tl']['voorschot']['betaald'])];
     }
     usort($uit, fn($a, $b) => $b['t'] <=> $a['t']);
     return array_slice($uit, 0, $max);

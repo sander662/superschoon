@@ -47,6 +47,7 @@ $v = fn($f) => $f . '?v=' . substr(md5((string)@filemtime(__DIR__ . '/' . $f)), 
     <span class="live" id="live" title="Bezoekers in de laatste 5 minuten"><i></i><b>–</b> nu op de site</span>
     <nav class="kop-links">
       <a href="#offertes-paneel">Offertes</a>
+      <a href="teamleader.php">Teamleader</a>
       <a href="#vindbaarheid">Vindbaarheid</a>
       <a href="#instellingen">Instellingen</a>
       <a href="?uit=1">Afmelden</a>

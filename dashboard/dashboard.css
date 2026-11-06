@@ -133,3 +133,5 @@ td.getal,th.getal{text-align:right;font-variant-numeric:tabular-nums;white-space
 .ww{display:flex;flex-direction:column;gap:8px;max-width:360px}
 .ww label{display:flex;flex-direction:column;gap:4px;font-size:14px}
 .ww .knop{align-self:flex-start}
+.ww .radio{flex-direction:row;align-items:flex-start;gap:8px;font-weight:400;margin:4px 0}
+.ww .radio input{margin-top:3px;flex:none}

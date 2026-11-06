@@ -14,6 +14,7 @@ define('SUPERSCHOON', true);
 require __DIR__ . '/kortingscodes.php';
 require __DIR__ . '/dashboard/lib.php';
 require __DIR__ . '/dashboard/offerte_lib.php';
+require __DIR__ . '/dashboard/tl_lib.php';
 
 const ONTVANGER = 'info@ssprojects.be';
 const AFZENDER  = 'noreply@superschoon.be';
@@ -182,10 +183,13 @@ $offerte = [
     'nieuwsbrief' => $nieuwsbrief === 'ja', 'historiek' => [['t' => time(), 'actie' => 'aangemaakt']],
 ];
 $offerteOk = offerte_bewaar($offerte);
+if ($offerteOk) { tl_sync_nieuw($offerte); offerte_bewaar($offerte); }
 $offerteUrl = $offerteOk ? offerte_url($offerte) : '';
 
 $body = "Nieuwe offerteaanvraag via superschoon.be ($tijd)\n"
-      . ($offerteOk ? "Online offerte {$offerte['nummer']}: $offerteUrl\n" : '') . "\n"
+      . ($offerteOk ? "Online offerte {$offerte['nummer']}: $offerteUrl\n" : '')
+      . (!empty($offerte['tl']['ok']) ? "Teamleader: contact " . ($offerte['tl']['contact_nieuw'] ? 'aangemaakt' : 'bestond al') . ", deal en offerte aangemaakt.\n" : '')
+      . (!empty($offerte['tl']['fout']) ? "LET OP – Teamleader-koppeling mislukt: {$offerte['tl']['fout']}\n" : '') . "\n"
       . "KLANT\n"
       . "Naam:      $naam\nE-mail:    $email\nTelefoon:  $tel\nAdres:     $adres\nNieuwsbrief: $nieuwsbrief\n\n"
       . "VERHARDING\n"

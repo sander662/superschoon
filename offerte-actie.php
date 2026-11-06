@@ -4,6 +4,7 @@ declare(strict_types=1);
 date_default_timezone_set('Europe/Brussels');
 define('SUPERSCHOON', true);
 require __DIR__ . '/dashboard/offerte_lib.php';
+require __DIR__ . '/dashboard/tl_lib.php';
 
 const ONTVANGER = 'info@ssprojects.be';
 const AFZENDER  = 'noreply@superschoon.be';
@@ -56,6 +57,9 @@ if ($actie === 'aanvaarden') {
     $o['historiek'][] = ['t' => $nu, 'actie' => 'aanvaard'];
     if (!offerte_bewaar($o)) uit(500, ['ok' => false, 'fout' => 'Opslaan is mislukt. Probeer het opnieuw of bel 0468 43 00 53.']);
     stats_log('aanvaard', ['p' => '/offerte.php', 'nr' => $o['nummer'], 'b' => $o['totaal_excl'], 'g' => $k['gemeente'] ?? '']);
+    tl_sync_aanvaard($o);
+    offerte_bewaar($o);
+    $factuurVerstuurd = !empty($o['tl']['voorschot']['verstuurd']);
     $tot = date('d/m/Y', $nu + OFFERTE_HERROEPING_DAGEN * 86400);
     $bedrag = offerte_eur((float)$o['totaal_incl']);
     $sch = offerte_schema($o);
@@ -63,7 +67,7 @@ if ($actie === 'aanvaarden') {
         "Beste {$k['naam']},\n\nBedankt! Je hebt offerte {$o['nummer']} van Super Schoon aanvaard op " . date('d/m/Y \o\m H:i', $nu) . ".\n\n"
         . "- Reiniging van " . number_format((float)$o['m2'], 1, ',', '.') . " m² (" . implode(', ', $o['types']) . ")\n"
         . "- Adres: {$k['adres']}\n- Totaal: $bedrag incl. btw\n\n"
-        . "Betaling:\n- Eerste voorschot (10%): " . offerte_eur($sch['voorschot1']) . " – je ontvangt hiervoor een factuur.\n"
+        . "Betaling:\n- Eerste voorschot (10%): " . offerte_eur($sch['voorschot1']) . ($factuurVerstuurd ? " – de factuur ontvang je in een aparte mail, met een link om meteen online te betalen.\n" : " – je ontvangt hiervoor een factuur.\n")
         . "- Tweede voorschot (25%): " . offerte_eur($sch['voorschot2']) . " – zodra de uitvoeringsdatum ingepland is.\n"
         . "- Saldo: " . offerte_eur($sch['saldo']) . " – na de uitvoering van de werken.\n\n"
         . "We contacteren je om een datum af te spreken.\n\n"
@@ -74,7 +78,10 @@ if ($actie === 'aanvaarden') {
         "Offerte {$o['nummer']} is online aanvaard op " . date('d/m/Y H:i', $nu) . " door $naam.\n\n"
         . "Klant: {$k['naam']}\nE-mail: {$k['email']}\nTelefoon: {$k['tel']}\nAdres: {$k['adres']}\n"
         . "Oppervlakte: " . number_format((float)$o['m2'], 1, ',', '.') . " m² – " . implode(', ', $o['types']) . "\nTotaal: $bedrag incl. btw\n"
-        . "TE DOEN: voorschotfactuur 10% = " . offerte_eur($sch['voorschot1']) . " (daarna 25% = " . offerte_eur($sch['voorschot2']) . " bij inplanning, saldo " . offerte_eur($sch['saldo']) . ")\n"
+        . ($factuurVerstuurd ? "Voorschotfactuur " . ($o['tl']['voorschot']['nummer'] ?? '') . " automatisch geboekt en verstuurd via Teamleader.\n" : '')
+        . (!empty($o['tl']['fout_aanvaard']) ? "LET OP – Teamleader-koppeling mislukt: {$o['tl']['fout_aanvaard']}\n" : '')
+        . ($factuurVerstuurd ? '' : "TE DOEN: voorschotfactuur 10% = " . offerte_eur($sch['voorschot1']) . "\n")
+        . "Daarna: 25% = " . offerte_eur($sch['voorschot2']) . " bij inplanning, saldo " . offerte_eur($sch['saldo']) . " na uitvoering.\n"
         . "Uitvoering binnen de herroepingstermijn gevraagd: " . ($vroeg ? 'JA' : 'nee (niet uitvoeren vóór ' . $tot . ')') . "\n\nOfferte: $url\n", $k['email']);
     uit(200, ['ok' => true]);
 }

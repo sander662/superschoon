@@ -4,6 +4,7 @@ declare(strict_types=1);
 date_default_timezone_set('Europe/Brussels');
 define('SUPERSCHOON', true);
 require __DIR__ . '/dashboard/offerte_lib.php';
+require __DIR__ . '/dashboard/tl_lib.php';
 
 header('X-Robots-Tag: noindex, nofollow');
 header('Cache-Control: no-store');
@@ -33,6 +34,9 @@ $av = @file_get_contents(__DIR__ . '/_bron/av.html') ?: '<p>Zie <a href="/algeme
 $av = preg_replace('#<p class="hint">.*?</p>#s', '', $av);
 $a = $o['aanvaard'] ?? null;
 $sch = offerte_schema($o);
+if ($status === 'aanvaard' && tl_check_betaald($o)) offerte_bewaar($o);
+$vs = $o['tl']['voorschot'] ?? null;
+$betaalUrl = ($vs && empty($vs['betaald']) && !empty($vs['url'])) ? $vs['url'] : '';
 $herroepTot = $a ? $a['t'] + OFFERTE_HERROEPING_DAGEN * 86400 : null;
 $kop = '<div class="pkop"><span><b>Super Schoon</b> by S&amp;S Projects</span><span>Beekveldstraat 1A, 1980 Zemst · 0468 43 00 53 · info@ssprojects.be · BE 0735.883.273</span></div>';
 $voet = fn($n) => '<div class="pvoet"><span>Offerte ' . $h($o['nummer']) . '</span><span>' . $n . ' / 4</span></div>';
@@ -59,6 +63,8 @@ stats_log('offerte_bekeken', ['p' => '/offerte.php', 'nr' => $o['nummer']]);
       <?php if ($status === 'open'): ?>
       <button type="button" class="knop rood" data-open="d-weigeren">Weigeren</button>
       <button type="button" class="knop groen" data-open="d-aanvaarden">Offerte aanvaarden</button>
+      <?php elseif ($betaalUrl): ?>
+      <a class="knop groen" href="<?= $h($betaalUrl) ?>" target="_blank" rel="noopener">Betaal je voorschot</a>
       <?php endif; ?>
     </div>
   </div>
@@ -68,7 +74,13 @@ stats_log('offerte_bekeken', ['p' => '/offerte.php', 'nr' => $o['nummer']]);
 <div class="banner <?= $h($status) ?>" role="status"><div class="balk-in">
 <?php if ($status === 'aanvaard'): ?>
   <b>Je hebt deze offerte aanvaard op <?= date('d/m/Y \o\m H:i', $a['t']) ?>.</b> We nemen contact met je op om een datum te plannen.
+  <?php if (!empty($vs['betaald'])): ?>
+  <span>We hebben je voorschot van <?= $eur($vs['bedrag']) ?> goed ontvangen. Bedankt!</span>
+  <?php elseif ($betaalUrl): ?>
+  <span class="betaal">De factuur voor het eerste voorschot van 10% (<?= $eur($sch['voorschot1']) ?>) is ook naar je mailbox verstuurd. <a class="knop groen" href="<?= $h($betaalUrl) ?>" target="_blank" rel="noopener">Betaal nu online</a></span>
+  <?php else: ?>
   <span>Je ontvangt een factuur voor het eerste voorschot van 10% (<?= $eur($sch['voorschot1']) ?>).</span>
+  <?php endif; ?>
 <?php elseif ($status === 'geweigerd'): ?>
   <b>Je hebt deze offerte geweigerd.</b> Bedankt om het ons te laten weten. Van gedachten veranderd? Bel 0468 43 00 53.
 <?php elseif ($status === 'herroepen'): ?>
