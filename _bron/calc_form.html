@@ -1,0 +1,112 @@
+<form id="form" novalidate>
+  <div class="grid">
+    <div class="col">
+      <section class="panel stap1" aria-labelledby="h-stap1">
+        <p class="eyebrow">Stap 1</p>
+        <h2 id="h-stap1">Je verharding</h2>
+        <div class="fields">
+          <div class="f full">
+            <fieldset class="types" id="types" aria-describedby="e-types">
+              <legend>Type verharding <span class="opt">(duid aan wat van toepassing is)</span></legend>
+              <label class="type"><input type="checkbox" name="type" value="Natuursteen">Natuursteen</label>
+              <label class="type"><input type="checkbox" name="type" value="Keramische tegel">Keramische tegel</label>
+              <label class="type"><input type="checkbox" name="type" value="Betonklinker">Betonklinker</label>
+              <label class="type"><input type="checkbox" name="type" value="Kleiklinker">Kleiklinker</label>
+              <label class="type"><input type="checkbox" name="type" value="XL-tegel">XL-tegel</label>
+              <label class="type"><input type="checkbox" name="type" value="Houten terras">Houten terras</label>
+              <label class="type"><input type="checkbox" name="type" value="Gepolierde beton">Gepolierde beton</label>
+              <label class="type"><input type="checkbox" name="type" value="Andere" id="type-andere">Andere</label>
+            </fieldset>
+            <div class="f" id="andere-wrap" hidden><label for="andere-tekst">Welke verharding?</label><input id="andere-tekst" name="andere" maxlength="60" placeholder="Bv. kasseien, asfalt, composiet terras"></div>
+            <div class="ferr" id="e-types"></div>
+          </div>
+          <div class="f full">
+            <label for="m2">Oppervlakte</label>
+            <div class="modes" role="group" aria-label="Hoe wil je de oppervlakte ingeven?">
+              <button type="button" id="mode-zelf" aria-pressed="true">Ik ken mijn oppervlakte</button>
+              <button type="button" id="mode-kaart" aria-pressed="false">Teken het op de kaart</button>
+            </div>
+            <div class="m2wrap"><input id="m2" name="m2" type="number" inputmode="decimal" min="1" step="0.5" value="40" required><span class="unit">m²</span></div>
+            <div class="chips" id="chips">
+              <button type="button" data-v="15">15 m²</button><button type="button" data-v="25">25 m²</button><button type="button" data-v="40">40 m²</button><button type="button" data-v="60">60 m²</button><button type="button" data-v="100">100 m²</button>
+            </div>
+            <p class="hint" id="m2hint">Meet lengte × breedte. Bij een L-vorm deel je het op in rechthoeken en tel je ze op.</p>
+            <div class="mapbox" id="mapbox" hidden>
+              <div class="mapsearch">
+                <input id="zoekadres" type="search" placeholder="Zoek je adres, bv. Kerkstraat 5, Zemst" autocomplete="street-address" aria-label="Adres zoeken op de kaart">
+                <button type="button" class="btn" id="zoekbtn">Zoek</button>
+              </div>
+              <div id="map" aria-label="Luchtfoto om je verharding in te tekenen"></div>
+              <div class="maptools">
+                <button type="button" class="btn go" id="tekenbtn">Zone tekenen</button>
+                <button type="button" class="btn" id="klaarbtn" hidden>Zone afsluiten</button>
+                <button type="button" class="btn" id="undobtn" hidden>Laatste punt weg</button>
+                <button type="button" class="btn" id="stopbtn" hidden>Annuleren</button>
+              </div>
+              <p class="hint" id="maphint">Zoek je adres en zoom in tot je je terras of oprit goed ziet. Klik dan op "Zone tekenen" en klik de hoeken één voor één aan.</p>
+              <ul class="zonelist" id="zonelist"></ul>
+            </div>
+            <div class="ferr" id="e-m2"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel stap2" aria-labelledby="h-stap2">
+        <p class="eyebrow">Stap 2</p>
+        <h2 id="h-stap2">Je gegevens</h2>
+        <div class="fields">
+          <div class="f full"><label for="naam">Naam</label><input id="naam" name="naam" autocomplete="name" required><div class="ferr" id="e-naam"></div></div>
+          <div class="f"><label for="email">E-mailadres</label><input id="email" name="email" type="email" autocomplete="email" required><div class="ferr" id="e-email"></div></div>
+          <div class="f"><label for="tel">Telefoonnummer</label><input id="tel" name="tel" type="tel" autocomplete="tel" placeholder="04xx xx xx xx" required><div class="ferr" id="e-tel"></div></div>
+          <div class="f full"><label for="straat">Straat en huisnummer</label><input id="straat" name="straat" autocomplete="street-address" required><div class="ferr" id="e-straat"></div></div>
+          <div class="f"><label for="postcode">Postcode</label><input id="postcode" name="postcode" inputmode="numeric" autocomplete="postal-code" maxlength="4" required><div class="ferr" id="e-postcode"></div></div>
+          <div class="f"><label for="gemeente">Gemeente</label><input id="gemeente" name="gemeente" list="gemeenten" autocomplete="address-level2" required><datalist id="gemeenten"></datalist><div class="ferr" id="e-gemeente"></div></div>
+          <p class="hint full" id="zinfo">De verplaatsingskost hangt af van je gemeente.</p>
+          <div class="f full">
+            <label for="fotos">Foto's van je verharding <span class="opt">(optioneel, max. 6)</span></label>
+            <input id="fotos" name="fotos" type="file" accept="image/*" multiple>
+            <p class="hint">Een paar foto's helpen ons de prijs meteen juist in te schatten. Ze worden verkleind en alleen per e-mail naar ons verstuurd.</p>
+            <ul class="fotolijst" id="fotolijst"></ul>
+            <div class="ferr" id="e-fotos"></div>
+          </div>
+          <div class="f full"><label for="opm">Opmerking <span class="opt">(optioneel)</span></label><textarea id="opm" name="opm" placeholder="Bv. bereikbaarheid, gewenste periode"></textarea></div>
+          <label class="consent full" for="ok"><input type="checkbox" id="ok" name="ok" required><span>Ik geef Super Schoon toestemming om mijn gegevens te gebruiken om contact met mij op te nemen over deze aanvraag.</span></label>
+          <label class="consent full" for="nieuwsbrief"><input type="checkbox" id="nieuwsbrief" name="nieuwsbrief"><span>Ja, ik wil de nieuwsbrief van Super Schoon en S&amp;S Projects ontvangen <span class="opt">(optioneel, je kan je altijd uitschrijven)</span>.</span></label>
+          <div class="ferr full" id="e-ok"></div>
+        </div>
+        <div class="submit">
+          <button type="submit" class="primary">Offerte aanvragen</button>
+          <span class="hint">Vrijblijvend. We nemen zo snel mogelijk contact met je op.</span>
+        </div>
+      </section>
+
+      <section class="panel done" id="done" hidden aria-live="polite">
+        <p class="eyebrow">Aanvraag ontvangen</p>
+        <h2>Bedankt, <span id="d-naam"></span></h2>
+        <p style="margin:0">We bekijken je aanvraag en nemen contact op om een datum te plannen.</p>
+        <dl id="d-list"></dl>
+        <p style="margin:16px 0 0"><button type="button" class="linkbtn" id="nieuw">Nieuwe berekening maken</button></p>
+      </section>
+    </div>
+
+    <aside class="side">
+      <div class="pricecard" aria-live="polite">
+        <p class="eyebrow">Jouw prijs, incl. 21% btw</p>
+        <div class="big" id="pIncl">€ 0</div>
+        <div class="small" id="pSub">voor 40 m²</div>
+        <div class="rows">
+          <div><span>Reiniging</span><span id="rRein">€ 0</span></div>
+          <div><span>Verplaatsing</span><span id="rRit">vul je gemeente in</span></div>
+          <div id="rKortingRij" hidden><span id="rKortingLabel">Korting</span><span id="rKorting">– € 0</span></div>
+          <div><span>Totaal excl. btw</span><span id="rExcl">€ 0</span></div>
+        </div>
+        <div class="kcode">
+          <label for="kcode">Kortingscode</label>
+          <div class="kcode-rij"><input id="kcode" name="kcode" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="30"><button type="button" class="mbtn" id="kcode-btn">Toepassen</button></div>
+          <p class="kcode-msg" id="kcode-msg" aria-live="polite"></p>
+        </div>
+        <p class="note" id="pNote">Indicatieve prijs. De definitieve prijs bevestigen we na een korte controle ter plaatse of aan de hand van foto's.</p>
+      </div>
+      </aside>
+  </div>
+  </form>
