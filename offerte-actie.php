@@ -82,7 +82,7 @@ if ($actie === 'aanvaarden') {
         . (!empty($o['tl']['fout_aanvaard']) ? "LET OP – Teamleader-koppeling mislukt: {$o['tl']['fout_aanvaard']}\n" : '')
         . ($factuurVerstuurd ? '' : "TE DOEN: voorschotfactuur 10% = " . offerte_eur($sch['voorschot1']) . "\n")
         . "Daarna: 25% = " . offerte_eur($sch['voorschot2']) . " bij inplanning, saldo " . offerte_eur($sch['saldo']) . " na uitvoering.\n"
-        . "Uitvoering binnen de herroepingstermijn gevraagd: " . ($vroeg ? 'JA' : 'nee (niet uitvoeren vóór ' . $tot . ')') . "\n\nOfferte: $url\n", $k['email']);
+        . "\nOfferte: $url\n", $k['email']);
     uit(200, ['ok' => true]);
 }
 

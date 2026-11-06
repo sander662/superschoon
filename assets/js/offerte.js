@@ -63,7 +63,7 @@
     if (!$('a-akkoord').checked) return fout('a-fout', 'Vink aan dat je akkoord gaat met de offerte en de algemene voorwaarden.');
     fout('a-fout', '');
     var knop = $('a-knop'); knop.disabled = true; knop.textContent = 'Bezig…';
-    stuur({actie: 'aanvaarden', naam: naam, akkoord: true, vroeg: $('a-vroeg').checked, handtekening: cv.toDataURL('image/png')}).then(function(j){
+    stuur({actie: 'aanvaarden', naam: naam, akkoord: true, handtekening: cv.toDataURL('image/png')}).then(function(j){
       if (j.ok) { try { window.ssTrack && window.ssTrack('aanvaard'); } catch (x) {} location.reload(); return; }
       knop.disabled = false; knop.textContent = 'Aanvaarden met betalingsverplichting';
       fout('a-fout', j.fout || 'Er ging iets mis. Probeer het opnieuw of bel 0468 43 00 53.');

@@ -226,7 +226,6 @@ stats_log('offerte_bekeken', ['p' => '/offerte.php', 'nr' => $o['nummer']]);
     <div class="sig-kop"><label for="a-sig">Je handtekening</label><button type="button" class="link" id="sig-wis">Wissen</button></div>
     <canvas id="a-sig" class="sigvak" aria-label="Teken hier je handtekening met je vinger of muis" role="img"></canvas>
     <label class="vink"><input type="checkbox" id="a-akkoord" required><span>Ik heb de offerte en de <a href="#document" data-naar=".av">algemene voorwaarden</a> gelezen en ga ermee akkoord.</span></label>
-    <label class="vink"><input type="checkbox" id="a-vroeg"><span><b>Optioneel:</b> ik vraag uitdrukkelijk dat de reiniging binnen de herroepingstermijn van 14 dagen mag gebeuren. Ik weet dat ik bij herroeping het al uitgevoerde deel betaal, en dat ik mijn herroepingsrecht verlies zodra de reiniging volledig is uitgevoerd.</span></label>
     <p class="fout" id="a-fout" role="alert" hidden></p>
     <button type="submit" class="knop groen breed" id="a-knop" value="ok">Aanvaarden met betalingsverplichting</button>
     <p class="klein">Je ontvangt meteen een bevestiging per e-mail.</p>
