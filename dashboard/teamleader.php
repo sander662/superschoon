@@ -47,6 +47,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                 tl_api('webhooks.register', ['url' => $basis . '/tl-webhook.php?k=' . $c['webhook_sleutel'], 'types' => ['invoice.paymentRegistered']]);
                 $c['webhook'] = date('c'); tl_bewaar_cfg($c); $melding = 'Betalingsmeldingen zijn geactiveerd.';
             } catch (Throwable $t) { $fout = $t->getMessage(); }
+        } elseif ($actie === 'offertes') {
+            offerte_zet_modus(in_array($_POST['omodus'] ?? '', ['uit', 'test', 'aan'], true) ? $_POST['omodus'] : 'uit');
+            $melding = 'Instelling voor online offertes bewaard.';
         } elseif ($actie === 'ontkoppel') {
             unset($c['access_token'], $c['refresh_token'], $c['verloopt']); $c['modus'] = 'uit'; tl_bewaar_cfg($c); $melding = 'Teamleader is ontkoppeld.';
         }
@@ -81,7 +84,7 @@ $csrf = $h(dash_csrf());
 <body>
 <header class="kop"><div class="kop-in">
   <a class="merk" href="./"><img src="/assets/img/logo-superschoon-wit.svg" alt="Super Schoon" width="180" height="31"></a>
-  <span class="kop-titel">Teamleader-koppeling</span>
+  <span class="kop-titel">Offertes en Teamleader</span>
   <nav class="kop-links" style="margin-left:auto"><a href="./">Terug naar dashboard</a><a href="./?uit=1">Afmelden</a></nav>
 </div></header>
 <main class="wrap">
@@ -97,6 +100,17 @@ $csrf = $h(dash_csrf());
       <li><?= !empty($c['webhook']) ? '<span class="status goed">✓</span>' : '<span class="status let">!</span>' ?><span>Betalingsmeldingen actief</span></li>
       <li><span class="status <?= $c['modus'] === 'aan' ? 'goed' : 'let' ?>"><?= $c['modus'] === 'aan' ? 'AAN' : ($c['modus'] === 'test' ? 'TEST' : 'UIT') ?></span><span><?= $c['modus'] === 'aan' ? 'Alle aanvragen gaan naar Teamleader' : ($c['modus'] === 'test' ? 'Alleen aanvragen met een @ssprojects.be-adres; voorschotfacturen blijven concept' : 'Er gaat niets naar Teamleader') ?></span></li>
     </ul>
+  </section>
+
+  <section class="paneel">
+    <h2>Online offertes</h2>
+    <p>Bepaalt of klanten na de prijsberekening hun online offerte krijgen (met aanvaarden en betalen). Staat dit uit, dan werkt de prijsberekening zoals vroeger: alleen een mail.</p>
+    <form method="post" class="ww"><input type="hidden" name="csrf" value="<?= $csrf ?>"><input type="hidden" name="actie" value="offertes">
+      <?php foreach (['uit' => 'Uit', 'test' => 'Test – alleen voor aanvragen met een @ssprojects.be-adres', 'aan' => 'Aan – voor alle klanten'] as $m => $l): ?>
+      <label class="radio"><input type="radio" name="omodus" value="<?= $m ?>"<?= offerte_modus() === $m ? ' checked' : '' ?>> <?= $h($l) ?></label>
+      <?php endforeach; ?>
+      <button class="knop">Bewaren</button>
+    </form>
   </section>
 
   <section class="paneel">

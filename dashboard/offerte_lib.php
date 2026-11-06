@@ -67,6 +67,20 @@ function offerte_schema(array $o): array {
 function offerte_eur(float $n): string {
     return '€ ' . number_format($n, 2, ',', '.');
 }
+/** Online offertes: uit | test (alleen e-mailadressen op @ssprojects.be) | aan. Standaard uit. */
+function offerte_modus(): string {
+    $f = stats_dir() . '/offerte-instellingen.json';
+    $c = is_file($f) ? (json_decode((string)file_get_contents($f), true) ?: []) : [];
+    return in_array($c['modus'] ?? '', ['uit', 'test', 'aan'], true) ? $c['modus'] : 'uit';
+}
+function offerte_zet_modus(string $m): void {
+    @file_put_contents(stats_dir() . '/offerte-instellingen.json', json_encode(['modus' => $m]), LOCK_EX);
+}
+function offerte_actief_voor(string $email): bool {
+    $m = offerte_modus();
+    return $m === 'aan' || ($m === 'test' && str_ends_with(strtolower($email), '@ssprojects.be'));
+}
+
 /** Lijst voor het dashboard (nieuwste eerst). */
 function offerte_lijst(int $max = 100): array {
     $uit = [];

@@ -173,7 +173,7 @@ foreach ($zones as $i => $z) {
 
 // ---- online offerte aanmaken ----
 $offerte = [
-    'token' => bin2hex(random_bytes(16)), 'nummer' => offerte_volgnummer(), 'aangemaakt' => time(),
+    'token' => bin2hex(random_bytes(16)), 'nummer' => offerte_actief_voor($email) ? offerte_volgnummer() : '', 'aangemaakt' => time(),
     'geldig_tot' => strtotime('+' . OFFERTE_GELDIG_MAANDEN . ' month'), 'status' => 'open',
     'klant' => ['naam' => $naam, 'email' => $email, 'tel' => $tel, 'adres' => $adres, 'gemeente' => regel($in['gemeente'] ?? '', 80)],
     'types' => $types, 'm2' => round($m2, 1), 'zones' => count($zones), 'fotos' => count($bijlagen), 'opmerking' => $opm,
@@ -182,7 +182,7 @@ $offerte = [
     'totaal_excl' => round($excl, 2), 'btw' => round($incl - $excl, 2), 'totaal_incl' => $incl,
     'nieuwsbrief' => $nieuwsbrief === 'ja', 'historiek' => [['t' => time(), 'actie' => 'aangemaakt']],
 ];
-$offerteOk = offerte_bewaar($offerte);
+$offerteOk = offerte_actief_voor($email) && offerte_bewaar($offerte);
 if ($offerteOk) { tl_sync_nieuw($offerte); offerte_bewaar($offerte); }
 $offerteUrl = $offerteOk ? offerte_url($offerte) : '';
 
