@@ -20,7 +20,7 @@ function dash_hash(): string {
 }
 
 session_name('ssdash');
-session_set_cookie_params(['lifetime' => 0, 'path' => '/dashboard/', 'secure' => dash_https(), 'httponly' => true, 'samesite' => 'Strict']);
+session_set_cookie_params(['lifetime' => 0, 'path' => '/dashboard/', 'secure' => dash_https(), 'httponly' => true, 'samesite' => 'Lax']);
 session_start();
 
 function dash_ingelogd(): bool {
