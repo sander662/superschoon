@@ -3,6 +3,8 @@ Allow: /
 Disallow: /verstuur.php
 Disallow: /korting.php
 Disallow: /t.php
+Disallow: /offerte.php
+Disallow: /offerte-actie.php
 Disallow: /dashboard/
 
 Sitemap: https://www.superschoon.be/sitemap.xml

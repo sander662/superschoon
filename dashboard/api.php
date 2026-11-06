@@ -3,6 +3,7 @@
 declare(strict_types=1);
 define('SUPERSCHOON', true);
 require __DIR__ . '/auth.php';
+require __DIR__ . '/offerte_lib.php';
 header('Content-Type: application/json; charset=utf-8');
 
 function uit(int $code, array $data): void {
@@ -77,7 +78,7 @@ function top(array $lijst, int $n = 10): array {
 function periode(array $rijen, int $a, int $b, array $dagenPerBezoeker, bool $details): array {
     $pv = 0; $bezoekers = []; $bezoeken = []; $terug = [];
     $tel = 0; $mail = 0; $wa = 0; $offertes = []; $contact = 0; $kliks = []; $knoppen = [];
-    $paginas = []; $paginaBezoekers = []; $calcStart = []; $kaart = []; $calcBezoek = []; $kcodes = []; $perDag = [];
+    $aanvaard = 0; $geweigerd = 0; $paginas = []; $paginaBezoekers = []; $calcStart = []; $kaart = []; $calcBezoek = []; $kcodes = []; $perDag = [];
     foreach ($rijen as $r) {
         $t = $r['t']; if ($t < $a || $t > $b) continue;
         $dag = date('Y-m-d', $t);
@@ -114,6 +115,8 @@ function periode(array $rijen, int $a, int $b, array $dagenPerBezoeker, bool $de
             case 'offerte': $offertes[] = $r; $perDag[$dag]['a'] = ($perDag[$dag]['a'] ?? 0) + 1; break;
             case 'contact': $contact++; $perDag[$dag]['a'] = ($perDag[$dag]['a'] ?? 0) + 1; break;
             case 'kcode': $kcodes[] = $r; break;
+            case 'aanvaard': $aanvaard++; break;
+            case 'geweigerd': $geweigerd++; break;
         }
     }
     $nb = count($bezoekers);
@@ -168,7 +171,7 @@ function periode(array $rijen, int $a, int $b, array $dagenPerBezoeker, bool $de
         'kpi' => $kpi, 'reeks' => $reeks,
         'bronnen' => top($bronnen, 10), 'toestellen' => top($toestellen, 3), 'instap' => top($instap, 10), 'verwijzers' => top($verwijzers, 10),
         'paginas' => $top, 'gemeentes' => top($gemeentes, 12), 'kliks' => $kliklijst, 'kliksoorten' => top($kliks, 6),
-        'trechter' => ['calculator' => count($calcBezoek), 'gestart' => count($calcStart), 'kaart' => count($kaart), 'verstuurd' => $no],
+        'trechter' => ['calculator' => count($calcBezoek), 'gestart' => count($calcStart), 'kaart' => count($kaart), 'verstuurd' => $no, 'aanvaard' => $aanvaard, 'geweigerd' => $geweigerd],
         'aanvragen' => [
             'aantal' => $no, 'gem_m2' => $no ? round($m2 / $no, 1) : null, 'gem_bedrag' => $no ? round($bedrag / $no, 2) : null,
             'totaal_bedrag' => round($bedrag, 2), 'per_bron' => top($perBron, 10), 'per_gemeente' => top($perGemeente, 10),
@@ -190,5 +193,5 @@ foreach (glob(stats_dir() . '/ev-*.ndjson') ?: [] as $f) { if (preg_match('/ev-(
 
 uit(200, [
     'van' => $van, 'tot' => $tot, 'dagen' => $dagen, 'live' => count($live), 'sinds' => $eerste,
-    'nu' => $nu, 'vorig' => $vorig['kpi'], 'seo' => $seo, 'pagespeed' => $psi,
+    'nu' => $nu, 'vorig' => $vorig['kpi'], 'seo' => $seo, 'pagespeed' => $psi, 'offertes' => offerte_lijst(50),
 ]);

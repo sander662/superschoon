@@ -3,6 +3,6 @@ Options -Indexes
 <IfModule mod_headers.c>
 Header always set X-Robots-Tag "noindex, nofollow"
 </IfModule>
-<FilesMatch "^(lib|auth|config)\.php$|\.json$|\.ndjson$|\.txt$|\.hash$">
+<FilesMatch "^(lib|auth|config|offerte_lib)\.php$|\.json$|\.ndjson$|\.txt$|\.hash$">
   Require all denied
 </FilesMatch>

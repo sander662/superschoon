@@ -164,7 +164,7 @@ function toon(d) {
   staven('kliks', nu.kliks, {naam: r => `${esc(r.naam || r.doel)} <span class="zacht">· ${KLIK[r.soort] || r.soort}</span>`});
 
   const t = nu.trechter;
-  const stappen = [['Bezoek prijsberekening', t.calculator], ['Begonnen met invullen', t.gestart], ['Kaart gebruikt', t.kaart], ['Aanvraag verstuurd', t.verstuurd]];
+  const stappen = [['Bezoek prijsberekening', t.calculator], ['Begonnen met invullen', t.gestart], ['Kaart gebruikt', t.kaart], ['Aanvraag verstuurd', t.verstuurd], ['Offerte online aanvaard', t.aanvaard || 0]];
   $('trechter').innerHTML = t.calculator ? '<ul class="staven">' + stappen.map(([n, w], i) =>
     `<li><span class="naam">${n}</span><span class="waarde">${nl.format(w)}${i ? ` <span class="zacht">(${pct(t.calculator ? w / t.calculator * 100 : 0)})</span>` : ''}</span><span class="balk"><i style="width:${Math.max(2, w / t.calculator * 100)}%"></i></span></li>`).join('') + '</ul>'
     : '<p class="leeg">Nog geen bezoeken aan de prijsberekening.</p>';
@@ -187,7 +187,21 @@ function toon(d) {
     a.recent.map(r => `<tr><td>${new Date(r.t * 1000).toLocaleString('nl-BE', {day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'})}</td><td>${esc(r.g || '–')}</td><td>${esc((r.ty || []).join(', ') || '–')}</td><td class="getal">${r.m2 == null ? '–' : nl.format(r.m2) + ' m²'}</td><td class="getal">${eur(r.b)}</td><td>${esc(r.bron)}</td><td>${esc(r.code || '–')}</td><td class="getal">${r.f || 0}</td></tr>`).join('')}</tbody></table>`
     : '<p class="leeg">Nog geen offerteaanvragen in deze periode.</p>';
 
+  offertes(d.offertes || []);
   seo(d.seo); psiHistoriek(d.pagespeed || []);
+}
+
+/* ---------- offertes ---------- */
+const STATUS = {open: ['Open', 'let'], aanvaard: ['Aanvaard', 'goed'], geweigerd: ['Geweigerd', 'slecht'], herroepen: ['Herroepen', 'slecht'], verlopen: ['Verlopen', 'let']};
+function offertes(lijst) {
+  const tel = {}; lijst.forEach(o => tel[o.status] = (tel[o.status] || 0) + 1);
+  const waarde = lijst.filter(o => o.status === 'aanvaard').reduce((s, o) => s + o.incl, 0);
+  $('offertes-feiten').innerHTML = `<div class="feiten" style="grid-template-columns:repeat(5,minmax(0,1fr));margin:0 0 12px">${
+    ['open', 'aanvaard', 'geweigerd', 'herroepen', 'verlopen'].map(k => `<div class="feit"><span>${STATUS[k][0]}</span><b>${tel[k] || 0}</b></div>`).join('')}</div>
+    <p class="zacht">Waarde aanvaarde offertes: <b>${eur(waarde)}</b> incl. btw · laatste 50 offertes, alle periodes.</p>`;
+  $('offertes').innerHTML = lijst.length ? `<table><thead><tr><th>Nummer</th><th>Datum</th><th>Klant</th><th>Gemeente</th><th class="getal">Oppervlakte</th><th class="getal">Totaal incl. btw</th><th>Status</th><th></th></tr></thead><tbody>${
+    lijst.map(o => `<tr><td>${esc(o.nummer)}</td><td>${new Date(o.t * 1000).toLocaleDateString('nl-BE')}</td><td>${esc(o.naam)}</td><td>${esc(o.gemeente || '–')}</td><td class="getal">${nl.format(o.m2)} m²</td><td class="getal">${eur(o.incl)}</td><td><span class="status ${STATUS[o.status][1]}">${STATUS[o.status][0]}</span>${o.status === 'aanvaard' && o.vroeg === false ? '<br><span class="zacht">niet vóór einde herroeping</span>' : ''}${o.betaald ? '<br><span class="zacht">voorschot betaald</span>' : ''}${o.tl === 'fout' ? '<br><span class="status slecht">Teamleader-fout</span>' : (o.tl === 'ok' ? '<br><span class="zacht">in Teamleader</span>' : '')}</td><td><a href="/offerte.php?id=${esc(o.token)}" target="_blank" rel="noopener">Bekijk</a></td></tr>`).join('')}</tbody></table>`
+    : '<p class="leeg">Nog geen online offertes.</p>';
 }
 
 /* ---------- vindbaarheid ---------- */
