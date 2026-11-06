@@ -1,6 +1,8 @@
 /* Super Schoon – prijsberekening met kaartmodule en offerteaanvraag */
 'use strict';
 const START_TIJD=Date.now();
+const meet=(e,x)=>{ try{ window.ssTrack&&window.ssTrack(e,x); }catch(err){} };
+let gestart=false; const start=()=>{ if(!gestart){ gestart=true; meet('calc_start'); } };
 
 function berekenPrijs(m2){
   if(!(m2>=1)) return null;
@@ -340,6 +342,8 @@ function update(){
   $('rExcl').textContent=eur2(excl).replace(/,00$/,'');
 }
 $('m2').addEventListener('input',update);
+['m2','gemeente','straat','naam'].forEach(id=>$(id).addEventListener('input',start,{once:true}));
+document.querySelectorAll('.vtypes input').forEach(i=>i.addEventListener('change',start,{once:true}));
 $('gemeente').addEventListener('input',update);
 $('chips').addEventListener('click',e=>{const b=e.target.closest('button'); if(!b) return; $('m2').value=b.dataset.v; update(); $('m2').focus();});
 const gekozenTypes=()=>[...document.querySelectorAll('input[name=type]:checked')].map(i=>i.value==='Andere'?'Andere: '+($('andere-tekst').value.trim()||'?'):i.value);
@@ -366,7 +370,7 @@ $('form').addEventListener('submit',async e=>{
   const kb=kortingBedrag(rein+(vp.status==='ok'?vp.kost:0));
   const excl=rein+(vp.status==='ok'?vp.kost:0)-kb;
   const aanvraag={naam:$('naam').value.trim(),email:$('email').value.trim(),tel:$('tel').value.trim(),
-    types:gekozenTypes(), nieuwsbrief:$('nieuwsbrief').checked, adres:`${$('straat').value.trim()}, ${$('postcode').value.trim()} ${$('gemeente').value.trim()}`,
+    types:gekozenTypes(), nieuwsbrief:$('nieuwsbrief').checked, adres:`${$('straat').value.trim()}, ${$('postcode').value.trim()} ${$('gemeente').value.trim()}`, gemeente:$('gemeente').value.trim(),
     m2, reiniging:rein, verplaatsing: vp.status==='ok'?vp.kost:null, kortingscode: korting?korting.code:'', totaalExcl:excl, totaalIncl:Math.round(excl*121)/100, fotos: fotos.map(f=>({naam:f.naam,data:f.data})), opmerking:$('opm').value.trim(), zones: zones.map(z=>({m2:Math.round(geoOpp(z.punten)*10)/10, punten:z.punten.map(p=>[+p.lat.toFixed(7),+p.lng.toFixed(7)])}))};
   aanvraag.type='offerte'; aanvraag.website=$('hp-website').value; aanvraag.t=START_TIJD;
   const knop=document.querySelector('#form button[type=submit]'); knop.disabled=true; knop.textContent='Bezig met versturen…';
@@ -481,6 +485,7 @@ function herbereken(){
 function zetModus(kaartModus){
   $('mode-zelf').setAttribute('aria-pressed',String(!kaartModus)); $('mode-kaart').setAttribute('aria-pressed',String(kaartModus));
   $('mapbox').hidden=!kaartModus; $('m2hint').hidden=kaartModus; $('chips').hidden=kaartModus;
+  if(kaartModus){ start(); meet('kaart'); }
   if(kaartModus && maakKaart()){
     const adres=[$('straat').value.trim(),[$('postcode').value.trim(),$('gemeente').value.trim()].filter(Boolean).join(' ')].filter(Boolean).join(', ');
     if(adres && !$('zoekadres').value){ $('zoekadres').value=adres; zoekAdres(adres); }

@@ -12,6 +12,7 @@ declare(strict_types=1);
 date_default_timezone_set('Europe/Brussels');
 define('SUPERSCHOON', true);
 require __DIR__ . '/kortingscodes.php';
+require __DIR__ . '/dashboard/lib.php';
 
 const ONTVANGER = 'info@ssprojects.be';
 const AFZENDER  = 'noreply@superschoon.be';
@@ -126,6 +127,7 @@ if ($type === 'contact') {
          . "Je bericht:\n$bericht\n\n"
          . "Met vriendelijke groeten,\nSuper Schoon by S&S Projects\n0468 43 00 53 – info@ssprojects.be\nwww.superschoon.be\n";
     if ($ok) verstuur($email, 'We hebben je bericht ontvangen', $bev, ONTVANGER);
+    if ($ok) stats_log('contact', ['p' => '/contact.html', 'nb' => $nieuwsbrief === 'ja']);
     antwoord($ok ? 200 : 500, ['ok' => $ok]);
 }
 
@@ -194,5 +196,9 @@ $bev = "Beste $naam,\n\nBedankt voor je aanvraag bij Super Schoon. We nemen zo s
      . "Onze algemene voorwaarden: https://www.superschoon.be/algemene-voorwaarden.html\n\n"
      . "Met vriendelijke groeten,\nSuper Schoon by S&S Projects\n0468 43 00 53 – info@ssprojects.be\nwww.superschoon.be\n";
 if ($ok) verstuur($email, 'Je aanvraag bij Super Schoon', $bev, ONTVANGER);
+// statistiek: geen naam, e-mail, telefoon of adres, alleen gemeente en kerncijfers
+if ($ok) stats_log('offerte', ['p' => '/prijsberekening.html', 'g' => regel($in['gemeente'] ?? '', 60), 'm2' => round($m2, 1),
+    'b' => round($excl, 2), 'code' => $korting['code'] ?? '', 'nb' => $nieuwsbrief === 'ja', 'f' => count($bijlagen),
+    'kaart' => $zonesTxt !== '', 'ty' => $types]);
 
 antwoord($ok ? 200 : 500, ['ok' => $ok]);

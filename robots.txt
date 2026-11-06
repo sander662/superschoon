@@ -1,5 +1,8 @@
 User-agent: *
 Allow: /
 Disallow: /verstuur.php
+Disallow: /korting.php
+Disallow: /t.php
+Disallow: /dashboard/
 
 Sitemap: https://www.superschoon.be/sitemap.xml

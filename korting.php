@@ -4,6 +4,7 @@ declare(strict_types=1);
 date_default_timezone_set('Europe/Brussels');
 define('SUPERSCHOON', true);
 require __DIR__ . '/kortingscodes.php';
+require __DIR__ . '/dashboard/lib.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -18,6 +19,8 @@ if ($n >= 20) { http_response_code(429); echo json_encode(['ok' => false, 'fout'
 @file_put_contents($f, (string)($n + 1));
 
 $in = json_decode((string)file_get_contents('php://input', false, null, 0, 2000), true);
-$k = zoekKorting(is_array($in) ? (string)($in['code'] ?? '') : '');
+$code = is_array($in) ? (string)($in['code'] ?? '') : '';
+$k = zoekKorting($code);
+stats_log('kcode', ['p' => '/prijsberekening.html', 'code' => stats_kort(mb_strtoupper($code), 30), 'ok' => (bool)$k]);
 echo json_encode($k ? ['ok' => true, 'type' => $k['type'], 'waarde' => $k['waarde'], 'label' => $k['label']]
                     : ['ok' => false, 'fout' => 'Deze kortingscode is niet geldig of verlopen.'], JSON_UNESCAPED_UNICODE);
