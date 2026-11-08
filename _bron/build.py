@@ -7,6 +7,11 @@ def icon(name):
     s = open(OUT + f'assets/img/icoon-{name}.svg').read()
     return s
 
+# Sociale media: Instagram invullen zodra het profiel bestaat (lege waarde = niet tonen)
+WHATSAPP = 'https://wa.me/32468430053?text=' + 'Hallo%20Super%20Schoon%2C%20'
+SOCIAL = [('Facebook', 'https://www.facebook.com/profile.php?id=61595978537018'), ('Instagram', '')]
+SOCIAL = [(n, u) for n, u in SOCIAL if u]
+
 NAV = [('index.html', 'Home'), ('werkwijze.html', 'Werkwijze'), ('over-ons.html', 'Over ons'), ('contact.html', 'Contact')]
 
 ORG = {
@@ -25,7 +30,8 @@ ORG = {
   "address": {"@type": "PostalAddress", "streetAddress": "Beekveldstraat 1A", "postalCode": "1980", "addressLocality": "Zemst", "addressCountry": "BE"},
   "parentOrganization": {"@type": "Organization", "name": "S&S Projects BV", "url": "https://www.ssprojects.be"},
   "knowsAbout": ["terrasreiniging", "opritreiniging", "ecologische reiniging van buitenverhardingen", "reiniging zonder hogedruk"],
-  "areaServed": "Vlaanderen"
+  "areaServed": "Vlaanderen",
+  "sameAs": [u for _, u in SOCIAL]
 }
 
 exec(open(SP + 'metas.py').read())
@@ -85,9 +91,10 @@ FOOTER = '''</main>
         <h2>Contact</h2>
         <ul>
           <li><a href="tel:+32468430053">0468 43 00 53</a></li>
+          <li><a href="''' + WHATSAPP + '''" rel="noopener" target="_blank">WhatsApp</a></li>
           <li><a href="mailto:info@ssprojects.be">info@ssprojects.be</a></li>
           <li>Beekveldstraat 1A, 1980 Zemst</li>
-        </ul>
+        </ul>''' + (('<h2 class="foot-h2">Volg ons</h2>\n        <ul>' + ''.join(f'<li><a href="{u}" rel="noopener" target="_blank">{n}</a></li>' for n, u in SOCIAL) + '</ul>') if SOCIAL else '') + '''
       </div>
       <div>
         <h2>Snel naar</h2>
@@ -226,11 +233,11 @@ FAQ = [
   ('Gebruiken jullie chemische producten?', 'Nee. We reinigen alleen met een gepatenteerd borstelsysteem en een beetje water. Er komen geen chemicaliën, zeep of andere middelen aan te pas.'),
   ('Waarom geen hogedruk?', 'Hogedruk spuit voegen uit, maakt de toplaag van stenen ruw en doet vuil opspatten tegen gevels en ramen. Ruwe stenen vervuilen bovendien sneller opnieuw. Onze borstels polijsten het oppervlak, waardoor nieuw vuil minder snel hecht.'),
   ('Welke verhardingen kunnen jullie reinigen?', 'Natuursteen, keramische tegels, betonklinkers, kleiklinkers, XL-tegels, gepolierde beton, asfalt en houten of composiet terrassen.'),
-  ('Wat moet ik zelf voorzien?', 'Een buitenkraan met minstens 2,5 bar waterdruk en een Gardena-koppeling, en een stopcontact (230 V) in de buurt. Maak de oppervlakte ook vrij van meubels, bloempotten en voertuigen.'),
+  ('Wat moet ik zelf voorzien?', 'Een buitenkraan met minstens 2,5 bar waterdruk en een Gardena-koppeling, een stopcontact (230 V) in de buurt en een parkeerplaats voor onze bestelwagen voor de deur. Maak de oppervlakte ook vrij van meubels, bloempotten en voertuigen.'),
   ('Raden tegelfabrikanten deze methode aan?', 'Ja. Stone &amp; Style, het tegel- en klinkermerk van Ebema, raadt aan om je terras door een vakman te laten reinigen met een speciale borstel en uitsluitend water, en verwijst daarvoor naar Terrazza: het borstelsysteem waarmee wij werken. Een hogedrukreiniger raden ze af. <a href="https://stone-style.ebema.be/nl-BE/plaatsingsvoorschriften/onderhoud-en-reiniging" rel="noopener" target="_blank">Lees hun onderhoudsrichtlijnen</a>.'),
   ('Komt het voegzand los?', 'Bij een grondige reiniging komt los voegzand, mos en vuil uit de voegen. Dat is normaal. Wil je de voegen daarna opnieuw laten invullen, vraag het dan gerust: dat bieden we apart aan.'),
   ('Verdwijnen alle vlekken?', 'Groene aanslag, mos, algen en vuil verdwijnen. Diep ingetrokken vlekken zoals olie, roest of kalk verdwijnen niet altijd volledig. Twijfel je, stuur ons dan een foto.'),
-  ('Wanneer kan er gereinigd worden?', 'Het hele jaar door, behalve bij vorst of hevige regen. Dan spreken we samen een nieuwe datum af.'),
+  ('Wat is de beste periode om je terras, oprit of tuinpad te reinigen?', 'Dat kan het hele jaar door. In het najaar en de winter voorkom je met een reiniging dat je uitschuift op een glad, groen terras of pad. In de lente en de zomer geniet je meteen van een terras dat er weer als nieuw uitziet. Alleen bij vorst of hevige regen reinigen we niet: dan spreken we samen een nieuwe datum af.'),
 ]
 faq_schema = {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
   {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": re.sub('<[^>]+>', '', a)}} for q, a in FAQ]}
@@ -243,7 +250,7 @@ werk = f'''<section class="page-head"><div class="wrap stack">
 <section><div class="wrap">
   <ol class="steps">
     <li><h3>Bereken je prijs</h3><p>Vul online de oppervlakte en je gemeente in, of teken je verharding in op de luchtfoto. Je ziet meteen wat het kost.</p></li>
-    <li><h3>We plannen een datum</h3><p>Na je aanvraag bevestigen we de prijs en spreken we een dag af. Zorg die dag voor een buitenkraan (minstens 2,5 bar, Gardena-koppeling) en een stopcontact.</p></li>
+    <li><h3>We plannen een datum</h3><p>Na je aanvraag bevestigen we de prijs en spreken we een dag af. Zorg die dag voor een buitenkraan (minstens 2,5 bar, Gardena-koppeling), een stopcontact en een parkeerplaats voor de deur.</p></li>
     <li><h3>We reinigen</h3><p>Met het borstelsysteem en een beetje water. Zonder chemicaliën, zeep, stoom of hogedruk.</p></li>
     <li><h3>Klaar</h3><p>We laten alles borstelschoon achter. Kinderen en huisdieren kunnen meteen weer naar buiten.</p></li>
   </ol>
@@ -363,6 +370,7 @@ contact = '''<section class="page-head"><div class="wrap stack">
   <div class="stack-lg">
     <div class="facts">
       <div class="fact"><span>Telefoon</span><a href="tel:+32468430053">0468 43 00 53</a></div>
+      <div class="fact"><span>WhatsApp</span><a href="''' + WHATSAPP + '''" rel="noopener" target="_blank">Stuur een bericht</a></div>
       <div class="fact"><span>E-mail</span><a href="mailto:info@ssprojects.be">info@ssprojects.be</a></div>
       <div class="fact"><span>Adres</span><b>Beekveldstraat 1A<br>1980 Zemst</b></div>
       <div class="fact"><span>Btw</span><b>BE 0735.883.273</b></div>

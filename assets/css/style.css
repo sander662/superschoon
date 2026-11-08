@@ -250,3 +250,4 @@ input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--warn
 .az-groep ul{list-style:none;margin:0;padding:0}
 .az-groep li{padding:2px 0}
 .az-groep .pc{color:var(--muted);font-size:13px}
+.site-foot .foot-h2{margin-top:22px}

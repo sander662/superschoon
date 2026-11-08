@@ -124,7 +124,7 @@ def faq_regio(p):
     return [
       (f'Wat kost een terrasreiniging in {n}?', f'De prijs hangt af van de oppervlakte. Een terras van 40 m² in {n} kost {eur(round(ex*1.21))} incl. btw: {eur(prijs(40))} voor de reiniging {rit}. Met onze <a href="prijsberekening.html?gemeente={quote(p["calc"])}">prijsberekening</a> zie je meteen je eigen prijs.'),
       (f'Komen jullie ook naar {n}?', f'Ja. {ligging(p)} {afstand_tekst(p)} Daarmee valt {n} in onze zone {p["zone"]}.'.replace('  ', ' ')),
-      ('Wat moet ik zelf voorzien?', 'Een buitenkraan met minstens 2,5 bar waterdruk en een Gardena-koppeling, en een stopcontact (230 V) in de buurt. Maak de oppervlakte ook vrij van meubels, bloempotten en voertuigen.'),
+      ('Wat moet ik zelf voorzien?', 'Een buitenkraan met minstens 2,5 bar waterdruk en een Gardena-koppeling, een stopcontact (230 V) in de buurt en een parkeerplaats voor onze bestelwagen voor de deur. Maak de oppervlakte ook vrij van meubels, bloempotten en voertuigen.'),
       ('Waarom reinigen jullie niet met hogedruk?', 'Hogedruk spuit voegen uit, maakt de toplaag van stenen ruw en doet vuil opspatten tegen gevels en ramen. Ruwe stenen vervuilen bovendien sneller opnieuw. Onze borstels polijsten het oppervlak, waardoor nieuw vuil minder snel hecht.'),
     ]
 
@@ -269,7 +269,7 @@ llms = f'''# Super Schoon
 - E-mail: info@ssprojects.be
 - Geschikt voor: natuursteen, keramische tegels, betonklinkers, kleiklinkers, XL-tegels, gepolierde beton, asfalt, houten en composiet terrassen.
 - Prijs reiniging (excl. btw): tot 50 m² van € 190 (1 m²) tot € 400 (50 m²); 50–100 m²: € 400 + € 7 per extra m²; boven 100 m²: € 750 + € 6 per extra m². Plus verplaatsingskost: zone 1 gratis, zone 2 € 40, zone 3 € 65, verder volgens reistijd. Alle prijzen zijn indicatief en worden bevestigd na controle ter plaatse of op basis van foto's.
-- De klant voorziet een buitenkraan (min. 2,5 bar, Gardena-koppeling) en een stopcontact (230 V).
+- De klant voorziet een buitenkraan (min. 2,5 bar, Gardena-koppeling), een stopcontact (230 V) en een parkeerplaats voor de deur.
 
 ## Belangrijkste pagina's
 
