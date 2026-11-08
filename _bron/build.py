@@ -12,6 +12,13 @@ WHATSAPP = 'https://wa.me/32468430053?text=' + 'Hallo%20Super%20Schoon%2C%20'
 SOCIAL = [('Facebook', 'https://www.facebook.com/profile.php?id=61595978537018'), ('Instagram', '')]
 SOCIAL = [(n, u) for n, u in SOCIAL if u]
 
+_SV = '<svg class="ico" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+ICO = {
+  'WhatsApp': _SV + '<path d="M7.9 20A9 9 0 1 0 4 16.1L2.5 21.5Z"/><path d="M9 8.5c0 3.6 2.9 6.5 6.5 6.5l1-1.6-2-1-1 .9a5 5 0 0 1-2.8-2.8l.9-1-1-2Z" stroke-width="1.4"/></svg>',
+  'Facebook': _SV + '<path d="M15 3h-2a4 4 0 0 0-4 4v3H7v3h2v8h3v-8h3l1-3h-4V7a1 1 0 0 1 1-1h3z"/></svg>',
+  'Instagram': _SV + '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg>',
+}
+
 NAV = [('index.html', 'Home'), ('werkwijze.html', 'Werkwijze'), ('over-ons.html', 'Over ons'), ('contact.html', 'Contact')]
 
 ORG = {
@@ -91,10 +98,10 @@ FOOTER = '''</main>
         <h2>Contact</h2>
         <ul>
           <li><a href="tel:+32468430053">0468 43 00 53</a></li>
-          <li><a href="''' + WHATSAPP + '''" rel="noopener" target="_blank">WhatsApp</a></li>
+          <li><a href="''' + WHATSAPP + '''" rel="noopener" target="_blank" class="ico-link">''' + ICO['WhatsApp'] + '''WhatsApp</a></li>
           <li><a href="mailto:info@ssprojects.be">info@ssprojects.be</a></li>
           <li>Beekveldstraat 1A, 1980 Zemst</li>
-        </ul>''' + (('<h2 class="foot-h2">Volg ons</h2>\n        <ul>' + ''.join(f'<li><a href="{u}" rel="noopener" target="_blank">{n}</a></li>' for n, u in SOCIAL) + '</ul>') if SOCIAL else '') + '''
+        </ul>''' + (('<h2 class="foot-h2">Volg ons</h2>\n        <ul>' + ''.join(f'<li><a href="{u}" rel="noopener" target="_blank" class="ico-link">{ICO[n]}{n}</a></li>' for n, u in SOCIAL) + '</ul>') if SOCIAL else '') + '''
       </div>
       <div>
         <h2>Snel naar</h2>
@@ -370,7 +377,7 @@ contact = '''<section class="page-head"><div class="wrap stack">
   <div class="stack-lg">
     <div class="facts">
       <div class="fact"><span>Telefoon</span><a href="tel:+32468430053">0468 43 00 53</a></div>
-      <div class="fact"><span>WhatsApp</span><a href="''' + WHATSAPP + '''" rel="noopener" target="_blank">Stuur een bericht</a></div>
+      <div class="fact"><span>WhatsApp</span><a href="''' + WHATSAPP + '''" rel="noopener" target="_blank" class="ico-link">''' + ICO['WhatsApp'] + '''Stuur een bericht</a></div>
       <div class="fact"><span>E-mail</span><a href="mailto:info@ssprojects.be">info@ssprojects.be</a></div>
       <div class="fact"><span>Adres</span><b>Beekveldstraat 1A<br>1980 Zemst</b></div>
       <div class="fact"><span>Btw</span><b>BE 0735.883.273</b></div>
