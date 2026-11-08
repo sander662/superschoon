@@ -12,7 +12,7 @@ const kortDag = s => new Date(s + 'T12:00:00').toLocaleDateString('nl-BE', {day:
 const NAMEN = {'/': 'Home', '/prijsberekening.html': 'Prijsberekening', '/werkwijze.html': 'Werkwijze', '/over-ons.html': 'Over ons', '/contact.html': 'Contact',
   '/sitemap.html': 'Sitemap', '/algemene-voorwaarden.html': 'Algemene voorwaarden', '/privacy.html': 'Privacy'};
 const paginaNaam = p => NAMEN[p] || (p.startsWith('/terrasreiniging-') ? 'Gemeente: ' + p.slice(17, -5).replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : p);
-const KLIK = {tel: 'Telefoon', mail: 'E-mail', whatsapp: 'WhatsApp', extern: 'Externe links', knop: 'Knoppen', intern: 'Interne links'};
+const KLIK = {tel: 'Telefoon', mail: 'E-mail', whatsapp: 'WhatsApp', social: 'Facebook / Instagram', extern: 'Externe links', knop: 'Knoppen', intern: 'Interne links'};
 
 /* ---------- periode ---------- */
 let periode = {dagen: 30};
@@ -55,7 +55,7 @@ function kpis(k, v) {
     ['Offerteaanvragen', nl.format(k.offertes), verschil(k.offertes, v.offertes)],
     ['Contactberichten', nl.format(k.contact), verschil(k.contact, v.contact)],
     ['Conversie', pct(k.conversie), 'aanvragen + berichten per bezoeker'],
-    ['Kliks op telefoon / e-mail', nl.format(k.tel) + ' / ' + nl.format(k.mail), k.whatsapp ? nl.format(k.whatsapp) + ' WhatsApp' : 'telefoon / e-mail'],
+    ['Kliks op telefoon / e-mail / WhatsApp', nl.format(k.tel) + ' / ' + nl.format(k.mail) + ' / ' + nl.format(k.whatsapp || 0), 'rechtstreekse contactkliks'],
   ];
   $('kpis').innerHTML = tegels.map(([t, w, s]) => `<div class="kpi"><span>${t}</span><b>${w}</b><small>${s}</small></div>`).join('');
 }

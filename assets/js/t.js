@@ -22,6 +22,7 @@
     if (/^tel:/i.test(href)) k = 'tel';
     else if (/^mailto:/i.test(href)) k = 'mail';
     else if (/wa\.me|whatsapp/i.test(href)) k = 'whatsapp';
+    else if (/(^|\.)(facebook|instagram)\.com$/i.test(a.host || '')) k = 'social';
     else if (a.host && a.host !== location.host) k = 'extern';
     else if (a.classList.contains('btn')) k = 'knop';
     else k = 'intern';

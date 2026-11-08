@@ -65,6 +65,7 @@ for _naam, _raw, _p in _res:
 _paginas.sort(key=lambda x: (x['score'], x['url']))
 
 _ht = open(OUT + '.htaccess').read()
+_ix = open(OUT + 'index.html').read()
 _robots = open(OUT + 'robots.txt').read()
 _site = [
     {'naam': 'sitemap.xml aanwezig en ingediend bij Google', 'ok': os.path.exists(OUT + 'sitemap.xml'), 'uitleg': f'{_sitemap.count("<url>")} pagina\'s'},
@@ -76,7 +77,9 @@ _site = [
     {'naam': 'Bedrijfsgegevens (LocalBusiness) op elke pagina', 'ok': all('LocalBusiness' in r for _, r, _ in _res), 'uitleg': ''},
     {'naam': 'Gemeentepagina\'s voor het werkgebied', 'ok': len([1 for n, _, _ in _res if n.startswith('terrasreiniging-')]) > 0,
      'uitleg': f"{len([1 for n, _, _ in _res if n.startswith('terrasreiniging-')])} pagina's"},
-    {'naam': 'Google Bedrijfsprofiel', 'ok': False, 'uitleg': 'Nog aan te maken (zie tipsdocument)'},
+    {'naam': 'Google Bedrijfsprofiel', 'ok': True, 'uitleg': 'Geverifieerd; openingsuren, servicegebied en beschrijving ingevuld (8/11). Nog toe te voegen: logo, foto\'s, diensten'},
+    {'naam': 'Sociale media gekoppeld (Facebook, Instagram)', 'ok': all(x in _ix for x in ('facebook.com', 'wa.me')),
+     'uitleg': ('Facebook en WhatsApp gelinkt' + ('' if 'instagram.com' in _ix else '; Instagram nog aan te maken'))},
     {'naam': 'Reviews op de website', 'ok': False, 'uitleg': 'Nog geen reviews verzameld'},
 ]
 _gem = sum(p['score'] for p in _paginas) / len(_paginas)
