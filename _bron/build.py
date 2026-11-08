@@ -51,6 +51,7 @@ def head(title, desc, path, extra_css='', schema=None):
 <html lang="nl-BE">
 <head>
 <meta charset="utf-8">
+<meta name="msvalidate.01" content="B7FAC6237E1E013E34C41E7659F37CEB">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>{html.escape(title)}</title>
 <meta name="description" content="{html.escape(desc)}">
