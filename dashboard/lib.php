@@ -68,6 +68,7 @@ function stats_bron(string $host, string $utm): string {
         if (preg_match('/mail|nieuwsbrief|newsletter/i', $utm)) return 'E-mail';
         if (preg_match('/facebook|instagram|^fb|^ig|meta|linkedin|tiktok|youtube/i', $utm)) return 'Social';
         if (preg_match('/ssprojects/i', $utm)) return 'Verwijzing';
+        if (preg_match('/bedrijfsprofiel|gbp|google-?business|maps/i', $utm)) return 'Google-bedrijfsprofiel';
         return 'Campagne';
     }
     if ($host === '') return 'Direct';
