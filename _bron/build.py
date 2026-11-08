@@ -21,6 +21,10 @@ ICO = {
 
 NAV = [('index.html', 'Home'), ('werkwijze.html', 'Werkwijze'), ('over-ons.html', 'Over ons'), ('contact.html', 'Contact')]
 
+_cjs = open(OUT + 'assets/js/calculator.js').read()
+_czl = _cjs[_cjs.index('const ZONELIJST={') + len('const ZONELIJST='):_cjs.index('const LEZ')].strip().rstrip(';')
+_HOOFDGEMEENTEN = [('Puurs-Sint-Amands' if h == 'Puurs' else h) for z in ('1', '2', '3') for h, _ in json.loads(re.sub(r'(\d):\[', r'"\1":[', _czl.replace("'", '"')))[z]]
+
 ORG = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
@@ -37,7 +41,23 @@ ORG = {
   "address": {"@type": "PostalAddress", "streetAddress": "Beekveldstraat 1A", "postalCode": "1980", "addressLocality": "Zemst", "addressCountry": "BE"},
   "parentOrganization": {"@type": "Organization", "name": "S&S Projects BV", "url": "https://www.ssprojects.be"},
   "knowsAbout": ["terrasreiniging", "opritreiniging", "ecologische reiniging van buitenverhardingen", "reiniging zonder hogedruk"],
-  "areaServed": "Vlaanderen",
+  "areaServed": [{"@type": "City", "name": n} for n in _HOOFDGEMEENTEN] + [{"@type": "AdministrativeArea", "name": "Vlaanderen"}],
+  "priceRange": "€€",
+  "currenciesAccepted": "EUR",
+  "openingHoursSpecification": [{"@type": "OpeningHoursSpecification",
+    "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], "opens": "08:00", "closes": "16:00"}],
+  "hasOfferCatalog": {"@type": "OfferCatalog", "name": "Ecologische reiniging van buitenverhardingen", "itemListElement": [
+    {"@type": "Offer", "itemOffered": {"@type": "Service", "name": n, "description": d, "serviceType": "Reiniging van buitenverhardingen",
+      "provider": {"@id": DOMAIN + "/#bedrijf"}},
+     "url": DOMAIN + "/prijsberekening.html",
+     "priceSpecification": {"@type": "PriceSpecification", "minPrice": 190, "priceCurrency": "EUR", "valueAddedTaxIncluded": False,
+       "description": "Vanaf € 190 excl. btw; de prijs hangt af van de oppervlakte en de afstand tot Zemst."}}
+    for n, d in [
+      ("Terrasreiniging", "Terrassen in natuursteen, keramische tegels, XL-tegels en klinkers reinigen met een gepatenteerd borstelsysteem en water, zonder chemie of hogedruk."),
+      ("Opritreiniging", "Opritten in betonklinkers, kleiklinkers, gepolierde beton of asfalt reinigen zonder hogedruk, zonder de voegen uit te spuiten."),
+      ("Reiniging van tuinpaden", "Tuinpaden en looppaden vrijmaken van groene aanslag, mos en algen, zodat ze minder glad zijn."),
+      ("Reiniging van houten en composiet terrassen", "Houten en composiet vlonders zacht en ecologisch reinigen, zonder de vezels open te spuiten."),
+    ]]},
   "sameAs": [u for _, u in SOCIAL]
 }
 
