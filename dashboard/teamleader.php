@@ -98,7 +98,7 @@ $csrf = $h(dash_csrf());
       <li><?= !empty($c['refresh_token']) ? '<span class="status goed">✓</span>' : '<span class="status slecht">✕</span>' ?><span>Gekoppeld<?= $wie ? ' (als ' . $h($wie) . ')' : '' ?></span></li>
       <li><?= tl_gekoppeld($c) ? '<span class="status goed">✓</span>' : '<span class="status slecht">✕</span>' ?><span>Afdeling, pijplijn, fasen en btw gekozen</span></li>
       <li><?= !empty($c['webhook']) ? '<span class="status goed">✓</span>' : '<span class="status let">!</span>' ?><span>Betalingsmeldingen actief</span></li>
-      <li><span class="status <?= $c['modus'] === 'aan' ? 'goed' : 'let' ?>"><?= $c['modus'] === 'aan' ? 'AAN' : ($c['modus'] === 'test' ? 'TEST' : 'UIT') ?></span><span><?= $c['modus'] === 'aan' ? 'Alle aanvragen gaan naar Teamleader' : ($c['modus'] === 'test' ? 'Alleen aanvragen met een @ssprojects.be-adres; voorschotfacturen blijven concept' : 'Er gaat niets naar Teamleader') ?></span></li>
+      <li><span class="status <?= $c['modus'] === 'aan' ? 'goed' : 'let' ?>"><?= $c['modus'] === 'aan' ? 'AAN' : ($c['modus'] === 'test' ? 'TEST' : 'UIT') ?></span><span><?= $c['modus'] === 'aan' ? 'Alle aanvragen gaan naar Teamleader' : ($c['modus'] === 'test' ? 'Alleen aanvragen met een @ssprojects.be-adres' : 'Er gaat niets naar Teamleader') ?></span></li>
     </ul>
   </section>
 
@@ -144,7 +144,7 @@ $csrf = $h(dash_csrf());
       <label>Verantwoordelijke (optioneel) <?= kies('responsible_user_id', $lijsten['users'] ?? [], $c['responsible_user_id'], '(standaard)', fn($x) => trim(($x['first_name'] ?? '') . ' ' . ($x['last_name'] ?? ''))) ?></label>
       <label>Herkomst van de deal (optioneel) <?= kies('source_id', $lijsten['bron'] ?? [], $c['source_id'], '(geen)', fn($x) => $x['name']) ?></label>
       <fieldset style="border:1px solid var(--line);border-radius:6px;padding:10px 14px"><legend>Koppeling</legend>
-        <?php foreach (['uit' => 'Uit', 'test' => 'Test – alleen aanvragen met een @ssprojects.be-adres, voorschotfactuur blijft concept', 'aan' => 'Aan – alle aanvragen'] as $m => $l): ?>
+        <?php foreach (['uit' => 'Uit', 'test' => 'Test – alleen aanvragen met een @ssprojects.be-adres', 'aan' => 'Aan – alle aanvragen'] as $m => $l): ?>
         <label class="radio"><input type="radio" name="modus" value="<?= $m ?>"<?= $c['modus'] === $m ? ' checked' : '' ?>> <?= $h($l) ?></label>
         <?php endforeach; ?>
       </fieldset>
@@ -154,7 +154,7 @@ $csrf = $h(dash_csrf());
 
   <section class="paneel">
     <h2>3. Betalingsmeldingen</h2>
-    <p>Zodra een klant het voorschot online betaalt, laat Teamleader het de website weten. De deal gaat dan automatisch naar de gekozen fase en de offertepagina toont "voorschot ontvangen".</p>
+    <p>Bij online aanvaarding wordt er geen factuur meer gemaakt: de voorschotfactuur van 25% stuur je zelf vanuit Teamleader zodra de datum vastligt. Deze meldingen gelden nog voor offertes van vóór 9/11/2026 met een automatische voorschotfactuur.</p>
     <form method="post"><input type="hidden" name="csrf" value="<?= $csrf ?>"><input type="hidden" name="actie" value="webhook">
       <button class="knop licht"><?= !empty($c['webhook']) ? 'Opnieuw activeren' : 'Activeren' ?></button></form>
   </section>

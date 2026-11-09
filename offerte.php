@@ -77,9 +77,9 @@ stats_log('offerte_bekeken', ['p' => '/offerte.php', 'nr' => $o['nummer']]);
   <?php if (!empty($vs['betaald'])): ?>
   <span>We hebben je voorschot van <?= $eur($vs['bedrag']) ?> goed ontvangen. Bedankt!</span>
   <?php elseif ($betaalUrl): ?>
-  <span class="betaal">De factuur voor het eerste voorschot van 10% (<?= $eur($sch['voorschot1']) ?>) is ook naar je mailbox verstuurd. <a class="knop groen" href="<?= $h($betaalUrl) ?>" target="_blank" rel="noopener">Betaal nu online</a></span>
+  <span class="betaal">De factuur voor je voorschot is ook naar je mailbox verstuurd. <a class="knop groen" href="<?= $h($betaalUrl) ?>" target="_blank" rel="noopener">Betaal nu online</a></span>
   <?php else: ?>
-  <span>Je ontvangt een factuur voor het eerste voorschot van 10% (<?= $eur($sch['voorschot1']) ?>).</span>
+  <span>Zodra de datum vastligt, ontvang je een factuur voor het voorschot van 25% (<?= $eur($sch['voorschot']) ?>).</span>
   <?php endif; ?>
 <?php elseif ($status === 'geweigerd'): ?>
   <b>Je hebt deze offerte geweigerd.</b> Bedankt om het ons te laten weten. Van gedachten veranderd? Bel 0468 43 00 53.
@@ -125,8 +125,8 @@ stats_log('offerte_bekeken', ['p' => '/offerte.php', 'nr' => $o['nummer']]);
       </div>
       <h3>Zo verloopt het</h3>
       <ol class="stappen">
-        <li><b>Je aanvaardt de offerte</b> hier online. Je ontvangt een factuur voor een eerste voorschot van 10%.</li>
-        <li><b>We contacteren je en spreken samen een datum af.</b> Zodra de datum ingepland is, volgt een tweede voorschot van 25%.</li>
+        <li><b>Je aanvaardt de offerte</b> hier online. Je betaalt op dat moment nog niets.</li>
+        <li><b>We contacteren je en spreken samen een datum af.</b> Zodra de datum vastligt, ontvang je een factuur voor een voorschot van 25%.</li>
         <li><b>We reinigen</b> met borstels en water, zonder chemie of hogedruk, en laten alles borstelschoon achter.</li>
         <li><b>Na de uitvoering</b> ontvang je de factuur voor het saldo.</li>
       </ol>
@@ -171,17 +171,17 @@ stats_log('offerte_bekeken', ['p' => '/offerte.php', 'nr' => $o['nummer']]);
 
       <h3>Betalingsschema</h3>
       <table class="schema">
-        <tr><th>Eerste voorschot (10%)</th><td>bij aanvaarding van de offerte</td><td class="r"><?= $eur($sch['voorschot1']) ?></td></tr>
-        <tr><th>Tweede voorschot (25%)</th><td>zodra de uitvoeringsdatum ingepland is</td><td class="r"><?= $eur($sch['voorschot2']) ?></td></tr>
-        <tr><th>Saldo (65%)</th><td>na de uitvoering van de werken</td><td class="r"><?= $eur($sch['saldo']) ?></td></tr>
+        <tr><th>Bij aanvaarding</th><td>je betaalt nog niets</td><td class="r"><?= $eur(0) ?></td></tr>
+        <tr><th>Voorschot (25%)</th><td>zodra de uitvoeringsdatum vastligt</td><td class="r"><?= $eur($sch['voorschot']) ?></td></tr>
+        <tr><th>Saldo (75%)</th><td>na de uitvoering van de werken</td><td class="r"><?= $eur($sch['saldo']) ?></td></tr>
       </table>
 
       <h3>Voorwaarden van deze offerte</h3>
       <ul class="voorwaarden">
-        <li><b>Oppervlakte.</b> De prijs is gebaseerd op de oppervlakte die je opgaf. Is de werkelijke oppervlakte meer dan 10% groter, dan melden we dat vóór we beginnen, met de aangepaste prijs volgens hetzelfde tarief. Je kiest dan zelf: verder aan de aangepaste prijs, of alleen de opgegeven oppervlakte. Kies je er ter plaatse voor om niet te laten reinigen, dan blijven de betaalde voorschotten verworven. Is de oppervlakte kleiner, dan verlagen we de prijs naar verhouding.</li>
+        <li><b>Oppervlakte.</b> De prijs is gebaseerd op de oppervlakte die je opgaf. Is de werkelijke oppervlakte meer dan 10% groter, dan melden we dat vóór we beginnen, met de aangepaste prijs volgens hetzelfde tarief. Je kiest dan zelf: verder aan de aangepaste prijs, of alleen de opgegeven oppervlakte. Kies je er ter plaatse voor om niet te laten reinigen, dan blijft het betaalde voorschot verworven. Is de oppervlakte kleiner, dan verlagen we de prijs naar verhouding.</li>
         <li><b>Niet inbegrepen.</b> Het opnieuw invoegen of bijvullen van voegen, het verwijderen van hardnekkige vlekken zoals olie, roest, kauwgom of cement, het verplaatsen van zware objecten<?= preg_match('/\b(Brussel|Antwerpen)\b/u', $k['gemeente'] ?? '') ? ', en de LEZ-toeslag' : '' ?>. Dat bieden we graag apart aan.</li>
         <li><b>Wat je zelf voorziet.</b> Een buitenkraan met minstens 2,5 bar waterdruk en een Gardena-koppeling, een stopcontact (230 V) in de buurt, een parkeerplaats voor de deur, en een vrije oppervlakte zonder meubels, bloempotten of voertuigen.<?= OFFERTE_UURTARIEF ? ' Extra tijd door een niet-vrije werkzone rekenen we aan tegen ' . $eur(OFFERTE_UURTARIEF) . ' per uur excl. btw.' : '' ?></li>
-        <li><b>Betaling.</b> 10% voorschot bij aanvaarding, 25% tweede voorschot zodra de uitvoeringsdatum ingepland is, en het saldo na de uitvoering. Elke factuur is betaalbaar binnen 14 kalenderdagen.</li>
+        <li><b>Betaling.</b> Bij aanvaarding betaal je nog niets. Zodra de uitvoeringsdatum vastligt, volgt een voorschot van 25%; het saldo van 75% na de uitvoering. Elke factuur is betaalbaar binnen 14 kalenderdagen.</li>
         <li><b>Planning.</b> Na je aanvaarding contacteren we je en spreken we een datum af. Bij vorst of hevige regen verplaatsen we kosteloos naar een nieuwe datum.</li>
       </ul>
       <?php if ($o['opmerking']): ?><p class="opm"><b>Jouw opmerking:</b> <?= nl2br($h($o['opmerking'])) ?></p><?php endif; ?>
@@ -220,7 +220,7 @@ stats_log('offerte_bekeken', ['p' => '/offerte.php', 'nr' => $o['nummer']]);
   <form method="dialog" class="dlg-in" id="f-aanvaarden" novalidate>
     <button class="sluit" value="sluit" aria-label="Sluiten" formnovalidate>×</button>
     <h2 id="t-aanv">Offerte <?= $h($o['nummer']) ?> aanvaarden</h2>
-    <p class="samenvatting">Reiniging van <?= number_format((float)$o['m2'], 1, ',', '.') ?> m² · <b><?= $eur($o['totaal_incl']) ?> incl. btw</b><br><small>Bij aanvaarding: eerste voorschot van 10% (<?= $eur($sch['voorschot1']) ?>)</small></p>
+    <p class="samenvatting">Reiniging van <?= number_format((float)$o['m2'], 1, ',', '.') ?> m² · <b><?= $eur($o['totaal_incl']) ?> incl. btw</b><br><small>Je betaalt nu nog niets. Voorschot van 25% (<?= $eur($sch['voorschot']) ?>) zodra de datum vastligt.</small></p>
     <label for="a-naam">Je naam</label>
     <input id="a-naam" autocomplete="name" value="<?= $h($k['naam']) ?>" required>
     <div class="sig-kop"><label for="a-sig">Je handtekening</label><button type="button" class="link" id="sig-wis">Wissen</button></div>

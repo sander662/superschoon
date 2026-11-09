@@ -11,7 +11,7 @@ require_once __DIR__ . '/lib.php';
 const OFFERTE_GELDIG_MAANDEN = 1;      // AV art. 2.2: een offerte is één maand geldig
 const OFFERTE_HERROEPING_DAGEN = 14;   // AV art. 12.1
 const OFFERTE_UURTARIEF = 60.0;        // AV art. 6: uurtarief voor extra tijd, excl. btw
-const OFFERTE_VOORSCHOTTEN = [0.10, 0.25]; // AV art. 11.1: 10% bij aanvaarding, 25% bij inplanning, saldo na uitvoering
+const OFFERTE_VOORSCHOT = 0.25; // AV art. 11.1: geen betaling bij aanvaarding; 25% voorschot zodra de datum vastligt, saldo (75%) na uitvoering
 
 function offerte_dir(): string {
     $d = stats_dir() . '/offertes';
@@ -61,8 +61,8 @@ function offerte_url(array $o): string {
 /** Betalingsschema volgens AV art. 11.1. */
 function offerte_schema(array $o): array {
     $t = (float)$o['totaal_incl'];
-    $v1 = round($t * OFFERTE_VOORSCHOTTEN[0], 2); $v2 = round($t * OFFERTE_VOORSCHOTTEN[1], 2);
-    return ['voorschot1' => $v1, 'voorschot2' => $v2, 'saldo' => round($t - $v1 - $v2, 2)];
+    $v = round($t * OFFERTE_VOORSCHOT, 2);
+    return ['voorschot' => $v, 'saldo' => round($t - $v, 2)];
 }
 function offerte_eur(float $n): string {
     return '€ ' . number_format($n, 2, ',', '.');

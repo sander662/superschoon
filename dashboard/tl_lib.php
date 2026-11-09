@@ -151,54 +151,15 @@ function tl_sync_nieuw(array &$o): void {
     }
 }
 
-/** Aanvaarding: offerte aanvaard, deal verplaatsen, voorschotfactuur maken, boeken en mailen. */
+/** Aanvaarding: offerte aanvaard en deal verplaatsen. Geen factuur: het voorschot van 25% stuurt Sander zelf zodra de datum vastligt. */
 function tl_sync_aanvaard(array &$o): void {
     if (empty($o['tl']['deal_id']) || !tl_voor($o)) return;
-    $c = tl_cfg(); $test = $c['modus'] === 'test';
-    $sch = offerte_schema($o);
-    $voorschotExcl = round((float)$o['totaal_excl'] * OFFERTE_VOORSCHOTTEN[0], 2);
+    $c = tl_cfg();
     try {
         try { tl_api('quotations.accept', ['id' => $o['tl']['quotation_id']]); } catch (Throwable $t) { tl_log("waarschuwing {$o['nummer']}: quotations.accept: " . $t->getMessage()); }
         if ($c['fase_aanvaard']) tl_api('deals.move', ['id' => $o['tl']['deal_id'], 'phase_id' => $c['fase_aanvaard']]);
-        $inv = tl_api('invoices.draft', [
-            'invoicee' => ['customer' => ['type' => 'contact', 'id' => $o['tl']['contact_id']]],
-            'department_id' => $c['department_id'],
-            'payment_term' => ['type' => 'after_invoice_date', 'days' => 14],
-            'currency' => ['code' => 'EUR', 'exchange_rate' => 1],
-            'grouped_lines' => [['line_items' => [[
-                'quantity' => 1,
-                'description' => 'Voorschot ecologische reiniging buitenverharding (10%)',
-                'extended_description' => 'Eerste voorschot van 10% op offerte ' . $o['nummer'] . ' (totaal ' . offerte_eur((float)$o['totaal_excl']) . ' excl. btw) – reiniging van '
-                    . number_format((float)$o['m2'], 1, ',', '.') . ' m², ' . $o['klant']['adres'] . '.',
-                'unit_price' => ['amount' => $voorschotExcl, 'tax' => 'excluding'],
-                'tax_rate_id' => $c['tax_rate_id'],
-            ]]]],
-        ]);
-        $id = $inv['data']['id'];
-        $o['tl']['voorschot'] = ['id' => $id, 'bedrag' => $sch['voorschot1'], 'betaald' => false, 'geboekt' => false];
-        if ($test) {
-            tl_log("TEST offerte {$o['nummer']}: voorschotfactuur als concept aangemaakt ($id), niet geboekt of verstuurd");
-            return;
-        }
-        tl_api('invoices.book', ['id' => $id, 'on' => date('Y-m-d')]);
-        $o['tl']['voorschot']['geboekt'] = true;
-        try {
-            $u = tl_api('cloudPlatforms.url', ['type' => 'invoice', 'id' => $id])['data'];
-            $o['tl']['voorschot']['url'] = $u['url'] ?? $u['public'] ?? '';
-        } catch (Throwable $t) { tl_log("waarschuwing {$o['nummer']}: cloudPlatforms.url: " . $t->getMessage()); }
-        try {
-            $info = tl_api('invoices.info', ['id' => $id])['data'];
-            $o['tl']['voorschot']['nummer'] = $info['invoice_number'] ?? '';
-        } catch (Throwable $t) {}
-        $k = $o['klant'];
-        tl_api('invoices.send', ['id' => $id,
-            'content' => ['subject' => 'Factuur voorschot – Super Schoon offerte ' . $o['nummer'],
-                'body' => "Beste " . explode(' ', trim($k['naam']))[0] . ",\n\nBedankt voor je bestelling. In bijlage vind je de factuur voor het eerste voorschot van 10% ("
-                    . offerte_eur($sch['voorschot1']) . " incl. btw)." . (!empty($o['tl']['voorschot']['url']) ? "\n\nJe kan meteen online betalen via: " . $o['tl']['voorschot']['url'] : '')
-                    . "\n\nMet vriendelijke groeten,\nSuper Schoon by S&S Projects\n0468 43 00 53 – info@ssprojects.be"],
-            'recipients' => ['to' => [['customer' => ['type' => 'contact', 'id' => $o['tl']['contact_id']], 'email' => $k['email']]]]]);
-        $o['tl']['voorschot']['verstuurd'] = true;
-        tl_log("offerte {$o['nummer']}: voorschotfactuur $id geboekt en verstuurd");
+        $o['tl']['aanvaard_ok'] = true;
+        tl_log("offerte {$o['nummer']}: aanvaard in Teamleader, deal verplaatst");
     } catch (Throwable $t) {
         $o['tl']['fout_aanvaard'] = $t->getMessage();
         tl_log("FOUT offerte {$o['nummer']} (aanvaard): " . $t->getMessage());

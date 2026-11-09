@@ -59,7 +59,6 @@ if ($actie === 'aanvaarden') {
     stats_log('aanvaard', ['p' => '/offerte.php', 'nr' => $o['nummer'], 'b' => $o['totaal_excl'], 'g' => $k['gemeente'] ?? '']);
     tl_sync_aanvaard($o);
     offerte_bewaar($o);
-    $factuurVerstuurd = !empty($o['tl']['voorschot']['verstuurd']);
     $tot = date('d/m/Y', $nu + OFFERTE_HERROEPING_DAGEN * 86400);
     $bedrag = offerte_eur((float)$o['totaal_incl']);
     $sch = offerte_schema($o);
@@ -67,20 +66,18 @@ if ($actie === 'aanvaarden') {
         "Beste {$k['naam']},\n\nBedankt! Je hebt offerte {$o['nummer']} van Super Schoon aanvaard op " . date('d/m/Y \o\m H:i', $nu) . ".\n\n"
         . "- Reiniging van " . number_format((float)$o['m2'], 1, ',', '.') . " m² (" . implode(', ', $o['types']) . ")\n"
         . "- Adres: {$k['adres']}\n- Totaal: $bedrag incl. btw\n\n"
-        . "Betaling:\n- Eerste voorschot (10%): " . offerte_eur($sch['voorschot1']) . ($factuurVerstuurd ? " – de factuur ontvang je in een aparte mail, met een link om meteen online te betalen.\n" : " – je ontvangt hiervoor een factuur.\n")
-        . "- Tweede voorschot (25%): " . offerte_eur($sch['voorschot2']) . " – zodra de uitvoeringsdatum ingepland is.\n"
-        . "- Saldo: " . offerte_eur($sch['saldo']) . " – na de uitvoering van de werken.\n\n"
-        . "We contacteren je om een datum af te spreken.\n\n"
+        . "We contacteren je om een datum af te spreken. Je betaalt nu nog niets.\n\n"
+        . "Betaling:\n- Voorschot (25%): " . offerte_eur($sch['voorschot']) . " – je ontvangt hiervoor een factuur zodra de uitvoeringsdatum vastligt.\n"
+        . "- Saldo (75%): " . offerte_eur($sch['saldo']) . " – na de uitvoering van de werken.\n\n"
         . "Je offerte, met je handtekening en de algemene voorwaarden, blijft beschikbaar via:\n$url\n\n"
         . "Met vriendelijke groeten,\nSuper Schoon by S&S Projects\n0468 43 00 53 – info@ssprojects.be\nwww.superschoon.be\n");
     mail_txt(ONTVANGER, "AANVAARD: offerte {$o['nummer']} – {$k['naam']} – $bedrag",
         "Offerte {$o['nummer']} is online aanvaard op " . date('d/m/Y H:i', $nu) . " door $naam.\n\n"
         . "Klant: {$k['naam']}\nE-mail: {$k['email']}\nTelefoon: {$k['tel']}\nAdres: {$k['adres']}\n"
         . "Oppervlakte: " . number_format((float)$o['m2'], 1, ',', '.') . " m² – " . implode(', ', $o['types']) . "\nTotaal: $bedrag incl. btw\n"
-        . ($factuurVerstuurd ? "Voorschotfactuur " . ($o['tl']['voorschot']['nummer'] ?? '') . " automatisch geboekt en verstuurd via Teamleader.\n" : '')
         . (!empty($o['tl']['fout_aanvaard']) ? "LET OP – Teamleader-koppeling mislukt: {$o['tl']['fout_aanvaard']}\n" : '')
-        . ($factuurVerstuurd ? '' : "TE DOEN: voorschotfactuur 10% = " . offerte_eur($sch['voorschot1']) . "\n")
-        . "Daarna: 25% = " . offerte_eur($sch['voorschot2']) . " bij inplanning, saldo " . offerte_eur($sch['saldo']) . " na uitvoering.\n"
+        . "TE DOEN: klant contacteren om een datum af te spreken; daarna voorschotfactuur 25% = " . offerte_eur($sch['voorschot']) . " sturen.\n"
+        . "Saldo 75% = " . offerte_eur($sch['saldo']) . " na uitvoering.\n"
         . "\nOfferte: $url\n", $k['email']);
     uit(200, ['ok' => true]);
 }
