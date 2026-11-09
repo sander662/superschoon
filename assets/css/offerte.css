@@ -167,3 +167,4 @@ body.leeg{display:grid;place-items:center;min-height:100vh;padding:16px}
   .lijnen th,.lijnen tbody tr:nth-child(odd) td,.totalen .eind th,.totalen .eind td{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .tabel-wrap{overflow:visible}
 }
+.opmerking{background:var(--bg,#f2f2ef);border-left:3px solid var(--green,#6aa84f);padding:8px 12px;margin:0 0 14px}

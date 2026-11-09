@@ -96,7 +96,7 @@ function tl_adres(string $adres): array {
     return ['line_1' => $straat ?: '-', 'postal_code' => $pc ?: '-', 'city' => $stad ?: '-', 'country' => 'BE'];
 }
 function tl_lijnen(array $o, array $c): array {
-    $lijnen = [[
+    $lijnen = (float)$o['m2'] <= 0 ? [] : [[
         'quantity' => 1,
         'description' => 'Ecologische reiniging buitenverharding – ' . number_format((float)$o['m2'], 1, ',', '.') . ' m²',
         'extended_description' => 'Verharding: ' . implode(', ', $o['types']) . "\nReiniging met een gepatenteerd borstelsysteem en water, zonder chemicaliën, zeep, stoom of hogedruk.",
@@ -107,6 +107,12 @@ function tl_lijnen(array $o, array $c): array {
         'unit_price' => ['amount' => round((float)$o['verplaatsing'], 2), 'tax' => 'excluding'], 'tax_rate_id' => $c['tax_rate_id']];
     if (!empty($o['korting'])) $lijnen[] = ['quantity' => 1, 'description' => 'Korting ' . $o['korting']['code'] . ': ' . $o['korting']['label'],
         'unit_price' => ['amount' => -round((float)$o['korting']['bedrag'], 2), 'tax' => 'excluding'], 'tax_rate_id' => $c['tax_rate_id']];
+    foreach ($o['extra'] ?? [] as $l) {
+        $r = ['quantity' => (float)$l['aantal'], 'description' => $l['omschrijving'] . ($l['eenheid'] ? ' (' . $l['eenheid'] . ')' : ''),
+              'unit_price' => ['amount' => round((float)$l['prijs'], 2), 'tax' => 'excluding'], 'tax_rate_id' => $c['tax_rate_id']];
+        if ($l['toelichting'] !== '') $r['extended_description'] = $l['toelichting'];
+        $lijnen[] = $r;
+    }
     return $lijnen;
 }
 
@@ -117,25 +123,26 @@ function tl_sync_nieuw(array &$o): void {
     $test = $c['modus'] === 'test';
     try {
         $o['tl'] = $o['tl'] ?? [];
-        $res = tl_api('contacts.list', ['filter' => ['email' => ['type' => 'primary', 'email' => $k['email']]], 'page' => ['size' => 1]]);
+        $res = !empty($o['tl']['contact_id']) ? ['data' => [['id' => $o['tl']['contact_id']]]]
+             : ($k['email'] !== '' ? tl_api('contacts.list', ['filter' => ['email' => ['type' => 'primary', 'email' => $k['email']]], 'page' => ['size' => 1]]) : ['data' => []]);
         if (!empty($res['data'][0]['id'])) {
             $o['tl']['contact_id'] = $res['data'][0]['id']; $o['tl']['contact_nieuw'] = false;
         } else {
             [$voor, $achter] = tl_naam($k['naam']);
-            $nieuw = ['first_name' => $voor, 'last_name' => $achter, 'emails' => [['type' => 'primary', 'email' => $k['email']]],
+            $nieuw = ['first_name' => $voor, 'last_name' => $achter, 'emails' => $k['email'] !== '' ? [['type' => 'primary', 'email' => $k['email']]] : [],
                       'addresses' => [['type' => 'primary', 'address' => tl_adres($k['adres'])]], 'language' => 'nl',
                       'tags' => ['Super Schoon'], 'marketing_mails_consent' => !empty($o['nieuwsbrief'])];
             if ($k['tel']) $nieuw['telephones'] = [['type' => preg_match('/^(\+32\s?|0)4/', preg_replace('/\s/', '', $k['tel'])) ? 'mobile' : 'phone', 'number' => $k['tel']]];
             $o['tl']['contact_id'] = tl_api('contacts.add', $nieuw)['data']['id']; $o['tl']['contact_nieuw'] = true;
         }
         $deal = ['lead' => ['customer' => ['type' => 'contact', 'id' => $o['tl']['contact_id']]],
-                 'title' => ($test ? '[TEST] ' : '') . 'Super Schoon – reiniging ' . number_format((float)$o['m2'], 0, ',', '.') . ' m² – offerte ' . $o['nummer'],
-                 'summary' => 'Online offerte: ' . offerte_url($o) . ($o['opmerking'] ? "\nOpmerking klant: " . $o['opmerking'] : ''),
+                 'title' => ($test ? '[TEST] ' : '') . 'Super Schoon – ' . ((float)$o['m2'] > 0 ? 'reiniging ' . number_format((float)$o['m2'], 0, ',', '.') . ' m² – ' : '') . 'offerte ' . $o['nummer'],
+                 'summary' => (($o['bron'] ?? '') === 'dashboard' ? 'Offerte opgemaakt in het dashboard (na plaatsbezoek). ' : '') . 'Online offerte: ' . offerte_url($o) . ($o['opmerking'] ? "\nOpmerking: " . $o['opmerking'] : ''),
                  'department_id' => $c['department_id'], 'phase_id' => $c['fase_nieuw'],
                  'estimated_value' => ['amount' => round((float)$o['totaal_excl'], 2), 'currency' => 'EUR'],
                  'estimated_closing_date' => date('Y-m-d', $o['geldig_tot'])];
         if ($c['responsible_user_id']) $deal['responsible_user_id'] = $c['responsible_user_id'];
-        if ($c['source_id']) $deal['source_id'] = $c['source_id'];
+        if ($c['source_id'] && ($o['bron'] ?? 'website') === 'website') $deal['source_id'] = $c['source_id'];
         $o['tl']['deal_id'] = tl_api('deals.create', $deal)['data']['id'];
         $o['tl']['quotation_id'] = tl_api('quotations.create', [
             'deal_id' => $o['tl']['deal_id'], 'currency' => ['code' => 'EUR', 'exchange_rate' => 1],
@@ -193,4 +200,35 @@ function tl_zoek_offerte_voor_factuur(string $factuurId): ?array {
         if (($o['tl']['voorschot']['id'] ?? '') === $factuurId) return $o;
     }
     return null;
+}
+
+/** Contacten zoeken in Teamleader (voor de offertetool in het dashboard). */
+function tl_zoek_contacten(string $term): array {
+    $res = tl_api('contacts.list', ['filter' => ['term' => $term], 'page' => ['size' => 10], 'sort' => [['field' => 'name']]]);
+    $uit = [];
+    foreach ($res['data'] ?? [] as $x) {
+        $uit[] = ['id' => $x['id'], 'naam' => trim(($x['first_name'] ?? '') . ' ' . ($x['last_name'] ?? '')),
+                  'email' => $x['emails'][0]['email'] ?? '', 'tel' => $x['telephones'][0]['number'] ?? '',
+                  'adres' => tl_adres_tekst($x['primary_address'] ?? ($x['addresses'][0]['address'] ?? null))];
+    }
+    return $uit;
+}
+/** Eén contact met adres ophalen. */
+function tl_contact(string $id): array {
+    $x = tl_api('contacts.info', ['id' => $id])['data'];
+    $adr = null;
+    foreach ($x['addresses'] ?? [] as $a) { if (($a['type'] ?? '') === 'primary') { $adr = $a['address']; break; } }
+    $adr ??= $x['addresses'][0]['address'] ?? ($x['primary_address'] ?? null);
+    $tel = '';
+    foreach ($x['telephones'] ?? [] as $t) { if (($t['type'] ?? '') === 'mobile') { $tel = $t['number']; break; } }
+    $tel = $tel ?: ($x['telephones'][0]['number'] ?? '');
+    return ['id' => $x['id'], 'naam' => trim(($x['first_name'] ?? '') . ' ' . ($x['last_name'] ?? '')),
+            'email' => $x['emails'][0]['email'] ?? '', 'tel' => $tel, 'adres' => tl_adres_tekst($adr),
+            'gemeente' => $adr['city'] ?? ''];
+}
+function tl_adres_tekst(?array $a): string {
+    if (!$a) return '';
+    $s = trim((string)($a['line_1'] ?? ''));
+    $p = trim(($a['postal_code'] ?? '') . ' ' . ($a['city'] ?? ''));
+    return trim($s . ($s && $p ? ', ' : '') . $p);
 }

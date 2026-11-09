@@ -85,7 +85,7 @@ $csrf = $h(dash_csrf());
 <header class="kop"><div class="kop-in">
   <a class="merk" href="./"><img src="/assets/img/logo-superschoon-wit.svg" alt="Super Schoon" width="180" height="31"></a>
   <span class="kop-titel">Offertes en Teamleader</span>
-  <nav class="kop-links" style="margin-left:auto"><a href="./">Terug naar dashboard</a><a href="./?uit=1">Afmelden</a></nav>
+  <nav class="kop-links" style="margin-left:auto"><a href="offerte-maken.php">Nieuwe offerte</a><a href="./">Terug naar dashboard</a><a href="./?uit=1">Afmelden</a></nav>
 </div></header>
 <main class="wrap">
   <?php if ($melding): ?><p class="paneel" role="status"><span class="status goed">✓</span> <?= $h($melding) ?></p><?php endif; ?>

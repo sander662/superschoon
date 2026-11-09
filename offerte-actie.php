@@ -62,9 +62,9 @@ if ($actie === 'aanvaarden') {
     $tot = date('d/m/Y', $nu + OFFERTE_HERROEPING_DAGEN * 86400);
     $bedrag = offerte_eur((float)$o['totaal_incl']);
     $sch = offerte_schema($o);
-    mail_txt($k['email'], "Bevestiging: je hebt offerte {$o['nummer']} aanvaard",
+    if ($k['email'] !== '') mail_txt($k['email'], "Bevestiging: je hebt offerte {$o['nummer']} aanvaard",
         "Beste {$k['naam']},\n\nBedankt! Je hebt offerte {$o['nummer']} van Super Schoon aanvaard op " . date('d/m/Y \o\m H:i', $nu) . ".\n\n"
-        . "- Reiniging van " . number_format((float)$o['m2'], 1, ',', '.') . " m² (" . implode(', ', $o['types']) . ")\n"
+        . "- " . ucfirst(offerte_kort($o)) . "\n"
         . "- Adres: {$k['adres']}\n- Totaal: $bedrag incl. btw\n\n"
         . "We contacteren je om een datum af te spreken. Je betaalt nu nog niets.\n\n"
         . "Betaling:\n- Voorschot (25%): " . offerte_eur($sch['voorschot']) . " – je ontvangt hiervoor een factuur zodra de uitvoeringsdatum vastligt.\n"
@@ -74,7 +74,7 @@ if ($actie === 'aanvaarden') {
     mail_txt(ONTVANGER, "AANVAARD: offerte {$o['nummer']} – {$k['naam']} – $bedrag",
         "Offerte {$o['nummer']} is online aanvaard op " . date('d/m/Y H:i', $nu) . " door $naam.\n\n"
         . "Klant: {$k['naam']}\nE-mail: {$k['email']}\nTelefoon: {$k['tel']}\nAdres: {$k['adres']}\n"
-        . "Oppervlakte: " . number_format((float)$o['m2'], 1, ',', '.') . " m² – " . implode(', ', $o['types']) . "\nTotaal: $bedrag incl. btw\n"
+        . "Werk: " . ucfirst(offerte_kort($o)) . "\nTotaal: $bedrag incl. btw\n"
         . (!empty($o['tl']['fout_aanvaard']) ? "LET OP – Teamleader-koppeling mislukt: {$o['tl']['fout_aanvaard']}\n" : '')
         . "TE DOEN: klant contacteren om een datum af te spreken; daarna voorschotfactuur 25% = " . offerte_eur($sch['voorschot']) . " sturen.\n"
         . "Saldo 75% = " . offerte_eur($sch['saldo']) . " na uitvoering.\n"

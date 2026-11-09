@@ -29,6 +29,12 @@
   });
   $('b-pdf').addEventListener('click', function(){ window.print(); });
 
+  /* ter plaatse laten tekenen (vanuit het dashboard): meteen het aanvaardvenster openen */
+  if (/[?&]teken=1/.test(location.search) && document.body.dataset.status === 'open') {
+    var da = $('d-aanvaarden');
+    if (da && da.showModal) setTimeout(function(){ da.showModal(); sigKlaar(); }, 300);
+  }
+
   /* handtekening */
   var cv = $('a-sig'), ctx, getekend = false, bezig = false, vorige = null;
   function sigKlaar(){

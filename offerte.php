@@ -145,19 +145,32 @@ stats_log('offerte_bekeken', ['p' => '/offerte.php', 'nr' => $o['nummer']]);
         <div><dt>Klant</dt><dd><?= $h($k['naam']) ?><br><?= $h($k['adres']) ?><br><?= $h($k['email']) ?><?= $k['tel'] ? '<br>' . $h($k['tel']) : '' ?></dd></div>
       </dl>
       <p>Beste <?= $h($voornaam) ?>,</p>
+      <?php if (($o['bron'] ?? 'website') === 'dashboard'): ?>
+      <p>Bedankt voor je interesse en voor het plaatsbezoek. Zoals besproken vind je hieronder onze offerte. Heb je nog vragen, klik dan bovenaan op "Vraag stellen" of bel ons gerust.</p>
+      <?php if ($o['opmerking'] !== ''): ?><p class="opmerking"><?= nl2br($h($o['opmerking'])) ?></p><?php endif; ?>
+      <?php else: ?>
       <p>Bedankt voor je aanvraag. Hieronder vind je onze offerte voor de ecologische reiniging van je verharding. Heb je nog vragen, klik dan bovenaan op "Vraag stellen" of bel ons gerust.</p>
+      <?php endif; ?>
 
       <div class="tabel-wrap"><table class="lijnen">
         <thead><tr><th>Omschrijving</th><th class="r">Aantal</th><th class="r">Prijs</th><th class="r">Btw</th><th class="r">Totaal</th></tr></thead>
         <tbody>
+          <?php if ((float)$o['m2'] > 0): ?>
           <tr><td><b>Ecologische reiniging buitenverharding</b>
             <ul><li>Verharding: <?= $h(implode(', ', $o['types'])) ?></li>
             <li>Reiniging met een gepatenteerd borstelsysteem en water, zonder chemicaliën, zeep, stoom of hogedruk</li>
             <li>Vrijgekomen vuil en mos samengeveegd, werkterrein borstelschoon achtergelaten</li>
             <?php if ($o['zones']): ?><li>Oppervlakte ingetekend op de luchtfoto (<?= (int)$o['zones'] ?> zone<?= $o['zones'] > 1 ? 's' : '' ?>)</li><?php endif; ?></ul></td>
             <td class="r"><?= number_format((float)$o['m2'], 1, ',', '.') ?> m²</td><td class="r"><?= $eur($prijsPerM2) ?>/m²</td><td class="r">21%</td><td class="r"><?= $eur($o['reiniging']) ?></td></tr>
+          <?php endif; ?>
+          <?php if ($o['verplaatsing'] !== null || ($o['bron'] ?? 'website') === 'website'): ?>
           <tr><td><b>Verplaatsing</b><?= $k['gemeente'] ? '<ul><li>Naar ' . $h($k['gemeente']) . '</li></ul>' : '' ?></td>
             <td class="r">1</td><td class="r"><?= $o['verplaatsing'] === null ? 'op aanvraag' : ((float)$o['verplaatsing'] == 0 ? 'gratis' : $eur($o['verplaatsing'])) ?></td><td class="r">21%</td><td class="r"><?= $o['verplaatsing'] === null ? '–' : $eur($o['verplaatsing']) ?></td></tr>
+          <?php endif; ?>
+          <?php foreach (offerte_extra($o) as $l): ?>
+          <tr><td><b><?= $h($l['omschrijving']) ?></b><?= $l['toelichting'] !== '' ? '<ul><li>' . nl2br($h($l['toelichting'])) . '</li></ul>' : '' ?></td>
+            <td class="r"><?= $h(rtrim(rtrim(number_format((float)$l['aantal'], 2, ',', '.'), '0'), ',')) ?><?= $l['eenheid'] !== '' ? ' ' . $h($l['eenheid']) : '' ?></td><td class="r"><?= $eur($l['prijs']) ?><?= $l['eenheid'] !== '' ? '/' . $h($l['eenheid']) : '' ?></td><td class="r">21%</td><td class="r"><?= $eur($l['totaal']) ?></td></tr>
+          <?php endforeach; ?>
           <?php if ($o['korting']): ?>
           <tr><td><b>Korting</b><ul><li>Code <?= $h($o['korting']['code']) ?>: <?= $h($o['korting']['label']) ?></li></ul></td><td class="r">1</td><td class="r">– <?= $eur($o['korting']['bedrag']) ?></td><td class="r">21%</td><td class="r">– <?= $eur($o['korting']['bedrag']) ?></td></tr>
           <?php endif; ?>
@@ -220,7 +233,7 @@ stats_log('offerte_bekeken', ['p' => '/offerte.php', 'nr' => $o['nummer']]);
   <form method="dialog" class="dlg-in" id="f-aanvaarden" novalidate>
     <button class="sluit" value="sluit" aria-label="Sluiten" formnovalidate>×</button>
     <h2 id="t-aanv">Offerte <?= $h($o['nummer']) ?> aanvaarden</h2>
-    <p class="samenvatting">Reiniging van <?= number_format((float)$o['m2'], 1, ',', '.') ?> m² · <b><?= $eur($o['totaal_incl']) ?> incl. btw</b><br><small>Je betaalt nu nog niets. Voorschot van 25% (<?= $eur($sch['voorschot']) ?>) zodra de datum vastligt.</small></p>
+    <p class="samenvatting"><?= $h(ucfirst(offerte_kort($o))) ?> · <b><?= $eur($o['totaal_incl']) ?> incl. btw</b><br><small>Je betaalt nu nog niets. Voorschot van 25% (<?= $eur($sch['voorschot']) ?>) zodra de datum vastligt.</small></p>
     <label for="a-naam">Je naam</label>
     <input id="a-naam" autocomplete="name" value="<?= $h($k['naam']) ?>" required>
     <div class="sig-kop"><label for="a-sig">Je handtekening</label><button type="button" class="link" id="sig-wis">Wissen</button></div>

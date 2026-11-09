@@ -47,6 +47,7 @@ $v = fn($f) => $f . '?v=' . substr(md5((string)@filemtime(__DIR__ . '/' . $f)), 
     <span class="live" id="live" title="Bezoekers in de laatste 5 minuten"><i></i><b>–</b> nu op de site</span>
     <nav class="kop-links">
       <a href="#offertes-paneel">Offertes</a>
+      <a href="offerte-maken.php">Nieuwe offerte</a>
       <a href="teamleader.php">Offertes &amp; Teamleader</a>
       <a href="#vindbaarheid">Vindbaarheid</a>
       <a href="#instellingen">Instellingen</a>
@@ -100,7 +101,7 @@ $v = fn($f) => $f . '?v=' . substr(md5((string)@filemtime(__DIR__ . '/' . $f)), 
   </section>
 
   <section class="paneel breed" id="offertes-paneel">
-    <div class="paneel-kop"><h2>Online offertes</h2><p class="zacht">Offertes die klanten via de prijsberekening kregen, met hun status.</p></div>
+    <div class="paneel-kop"><h2>Online offertes</h2><p class="zacht">Offertes via de prijsberekening en offertes die je zelf opmaakte, met hun status. <a class="knop" href="offerte-maken.php" style="margin-left:8px">+ Nieuwe offerte</a></p></div>
     <div id="offertes-feiten"></div>
     <div class="tabel-wrap" id="offertes"></div>
   </section>
