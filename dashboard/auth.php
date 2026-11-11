@@ -19,6 +19,11 @@ function dash_hash(): string {
     return is_file($f) ? trim((string)file_get_contents($f)) : DASH_WACHTWOORD_HASH;
 }
 
+/** Wordt nog het beginwachtwoord gebruikt? (de hash daarvan staat in de openbare repo) */
+function dash_standaard_wachtwoord(): bool {
+    return !is_file(stats_dir() . '/wachtwoord.hash');
+}
+
 session_name('ssdash');
 session_set_cookie_params(['lifetime' => 0, 'path' => '/dashboard/', 'secure' => dash_https(), 'httponly' => true, 'samesite' => 'Lax']);
 session_start();

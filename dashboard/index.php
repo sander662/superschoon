@@ -56,6 +56,9 @@ $v = fn($f) => $f . '?v=' . substr(md5((string)@filemtime(__DIR__ . '/' . $f)), 
   </div>
 </header>
 <main class="wrap" data-csrf="<?= htmlspecialchars(dash_csrf()) ?>" id="app">
+  <?php if (dash_standaard_wachtwoord()): ?>
+  <p class="paneel" role="alert" style="border-left:4px solid var(--critical)"><span class="status slecht">!</span> <b>Je gebruikt nog het beginwachtwoord.</b> Kies een eigen wachtwoord van minstens 12 tekens onder <a href="#instellingen">Instellingen</a>. (Het beginwachtwoord is minder veilig omdat de code van de website openbaar op GitHub staat.)</p>
+  <?php endif; ?>
   <div class="filters" role="group" aria-label="Periode">
     <div class="seg" id="periodes">
       <button type="button" data-d="1">Vandaag</button>
@@ -92,7 +95,7 @@ $v = fn($f) => $f . '?v=' . substr(md5((string)@filemtime(__DIR__ . '/' . $f)), 
     <section class="paneel"><h2>Kliks</h2><div id="kliksoorten"></div><h3>Meest aangeklikt</h3><div id="kliks"></div></section>
     <section class="paneel"><h2>Prijsberekening</h2><p class="zacht">Van bezoek tot aanvraag (aantal bezoeken).</p><div id="trechter"></div><div id="calcfeiten"></div></section>
     <section class="paneel"><h2>Aanvragen per bron</h2><div id="perbron"></div><h3>Per gemeente</h3><div id="pergemeente"></div></section>
-    <section class="paneel"><h2>Kortingscodes</h2><div id="kcodes"></div></section>
+    <section class="paneel"><h2>Kortingscodes</h2><p class="zacht"><a href="kortingscodes.php">Codes beheren</a></p><div id="kcodes"></div></section>
   </div>
 
   <section class="paneel breed">

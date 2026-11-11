@@ -90,6 +90,16 @@ function stats_opruimen(): void {
     foreach (glob(stats_dir() . '/login-*.json') ?: [] as $f) {
         if (filemtime($f) < time() - 86400) @unlink($f);
     }
+    // online offertes volgens de privacyverklaring: zonder opdracht max. 3 jaar na het laatste contact,
+    // aanvaarde offertes (bewijs van de overeenkomst, boekhouding) 10 jaar
+    foreach (glob(stats_dir() . '/offertes/*.json') ?: [] as $f) {
+        if (str_ends_with($f, 'teller.json')) continue;
+        $o = json_decode((string)@file_get_contents($f), true);
+        if (!is_array($o)) continue;
+        $laatste = max(array_merge([(int)($o['aangemaakt'] ?? 0)], array_map(fn($x) => (int)($x['t'] ?? 0), $o['historiek'] ?? [])));
+        $jaren = ($o['status'] ?? '') === 'aanvaard' ? 10 : 3;
+        if ($laatste > 0 && $laatste < strtotime("-$jaren years")) @unlink($f);
+    }
 }
 
 /** Een gebeurtenis bewaren. $extra bevat nooit namen, e-mailadressen of telefoonnummers. */
