@@ -15,7 +15,7 @@ if (!defined('SUPERSCHOON')) { http_response_code(404); exit; }
 
 /**
  * De codes zelf staan NIET in dit bestand (de GitHub-repo is openbaar), maar op de server in
- * dashboard/data/kortingscodes.json. Beheren via het dashboard: /dashboard/kortingscodes.php
+ * dashboard/data/kortingscodes.json. Beheren via het dashboard: /dashboard/kortingen.php
  */
 function kortingscodes_bestand(): string {
     return __DIR__ . '/dashboard/data/kortingscodes.json';
