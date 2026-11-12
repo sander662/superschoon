@@ -503,4 +503,6 @@ $('stopbtn').addEventListener('click',stopTekenen);
 
 // gemeente voorinvullen vanaf een gemeentepagina (?gemeente=...)
 try{ const qg=new URLSearchParams(location.search).get('gemeente'); if(qg&&!$('gemeente').value) $('gemeente').value=qg.slice(0,80); }catch(e){}
+// kortingscode voorinvullen vanaf een flyer (?code=...); de server controleert de code
+try{ const qc=(new URLSearchParams(location.search).get('code')||'').replace(/[^A-Za-z0-9_-]/g,'').toUpperCase().slice(0,30); if(qc&&!$('kcode').value){ $('kcode').value=qc; kortingToepassen(); } }catch(e){}
 update();
